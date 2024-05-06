@@ -34,7 +34,7 @@ public class User extends BaseEntity<User, UserVO> implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "id")
-    @TableId(value = "`id`", type = IdType.AUTO)
+    @TableId(value = "`id`", type = IdType.ASSIGN_ID)
     private Long id;
 
     @Schema(description = "用户账户")

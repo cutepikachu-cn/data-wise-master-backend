@@ -34,7 +34,7 @@ public class PostFavour extends BaseEntity<PostFavour, PostFavourVO> implements 
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "id")
-    @TableId(value = "`id`", type = IdType.AUTO)
+    @TableId(value = "`id`", type = IdType.ASSIGN_ID)
     private Long id;
 
     @Schema(description = "帖子 id")

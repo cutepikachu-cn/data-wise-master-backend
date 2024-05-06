@@ -36,7 +36,7 @@ public class Post extends BaseEntity<Post, PostVO> implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "id")
-    @TableId(value = "`id`", type = IdType.AUTO)
+    @TableId(value = "`id`", type = IdType.ASSIGN_ID)
     private Long id;
 
     @Schema(description = "标题")
