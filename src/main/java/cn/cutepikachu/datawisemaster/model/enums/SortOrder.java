@@ -1,8 +1,8 @@
 package cn.cutepikachu.datawisemaster.model.enums;
 
+import cn.hutool.core.util.ObjectUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -37,7 +37,7 @@ public enum SortOrder {
      * @return
      */
     public static SortOrder getEnumByValue(String value) {
-        if (ObjectUtils.isEmpty(value)) {
+        if (ObjectUtil.isEmpty(value)) {
             return null;
         }
         for (SortOrder anEnum : SortOrder.values()) {

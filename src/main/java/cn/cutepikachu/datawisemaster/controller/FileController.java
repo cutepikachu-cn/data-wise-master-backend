@@ -11,10 +11,10 @@ import cn.cutepikachu.datawisemaster.service.IUserService;
 import cn.cutepikachu.datawisemaster.util.ResultUtils;
 import cn.cutepikachu.datawisemaster.util.ThrowUtils;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.RandomUtil;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -57,7 +57,7 @@ public class FileController {
         validFile(multipartFile, biz);
         User loginUser = userService.getLoginUser(request);
         // 文件目录：根据业务、用户来划分
-        String uuid = RandomStringUtils.randomAlphanumeric(8);
+        String uuid = RandomUtil.randomString(8);
         String filename = uuid + "-" + multipartFile.getOriginalFilename();
         String filepath = String.format(FileConstant.PATH_FORMAT, biz.getValue(), loginUser.getId(), filename);
         File file = null;

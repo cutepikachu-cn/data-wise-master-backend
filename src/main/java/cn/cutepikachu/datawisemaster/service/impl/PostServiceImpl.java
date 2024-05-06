@@ -15,13 +15,13 @@ import cn.cutepikachu.datawisemaster.service.IPostService;
 import cn.cutepikachu.datawisemaster.service.IUserService;
 import cn.cutepikachu.datawisemaster.util.SqlUtils;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -72,19 +72,19 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements IP
         Long userId = postQueryRequest.getUserId();
         Long notId = postQueryRequest.getNotId();
         // 拼接查询条件
-        if (StringUtils.isNotBlank(searchText)) {
+        if (StrUtil.isNotBlank(searchText)) {
             lambdaQueryWrapper.and(qw -> qw.like(Post::getTitle, searchText).or().like(Post::getContent, searchText));
         }
-        lambdaQueryWrapper.like(StringUtils.isNotBlank(title), Post::getTitle, title);
-        lambdaQueryWrapper.like(StringUtils.isNotBlank(content), Post::getContent, content);
+        lambdaQueryWrapper.like(StrUtil.isNotBlank(title), Post::getTitle, title);
+        lambdaQueryWrapper.like(StrUtil.isNotBlank(content), Post::getContent, content);
         if (CollUtil.isNotEmpty(tagList)) {
             for (String tag : tagList) {
                 lambdaQueryWrapper.like(Post::getTags, "\"" + tag + "\"");
             }
         }
-        lambdaQueryWrapper.ne(ObjectUtils.isNotEmpty(notId), Post::getId, notId);
-        lambdaQueryWrapper.eq(ObjectUtils.isNotEmpty(id), Post::getId, id);
-        lambdaQueryWrapper.eq(ObjectUtils.isNotEmpty(userId), Post::getUserId, userId);
+        lambdaQueryWrapper.ne(ObjectUtil.isNotEmpty(notId), Post::getId, notId);
+        lambdaQueryWrapper.eq(ObjectUtil.isNotEmpty(id), Post::getId, id);
+        lambdaQueryWrapper.eq(ObjectUtil.isNotEmpty(userId), Post::getUserId, userId);
         if (SqlUtils.validSortField(sortField)) {
             boolean isAsc = sortOrder.equals(SortOrder.SORT_ORDER_ASC.getValue());
             switch (sortField.toLowerCase()) {
