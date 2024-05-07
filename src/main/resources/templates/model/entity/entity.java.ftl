@@ -86,22 +86,22 @@ public class ${entity} {
     <#if field.keyFlag>
         <#-- 主键 -->
         <#if field.keyIdentityFlag>
-    @TableId(value = "`${field.columnName}`", type = IdType.AUTO)
+    @TableId(value = "${field.columnName}", type = IdType.AUTO)
         <#elseif idType??>
-    @TableId(value = "`${field.columnName}`", type = IdType.${idType})
+    @TableId(value = "${field.columnName}", type = IdType.${idType})
         <#elseif field.convert>
-    @TableId("`${field.columnName}`")
+    @TableId("${field.columnName}")
         </#if>
         <#-- 普通字段 -->
     <#elseif field.fill??>
     <#-- -----   存在字段填充设置   ----->
         <#if field.convert>
-    @TableField(value = "`${field.columnName}`", fill = FieldFill.${field.fill})
+    @TableField(value = "${field.columnName}", fill = FieldFill.${field.fill})
         <#else>
     @TableField(fill = FieldFill.${field.fill})
         </#if>
     <#elseif field.convert>
-    @TableField("`${field.columnName}`")
+    @TableField("${field.columnName}")
     </#if>
     <#-- 乐观锁注解 -->
     <#if field.versionField>

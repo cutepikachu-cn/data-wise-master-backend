@@ -37,6 +37,6 @@ public class ${table.controllerName} extends ${superControllerClass} {
 public class ${table.controllerName} {
 </#if>
     @Resource
-    private ${table.serviceName} ${entity}Service;
+    private ${table.serviceName} ${entity?uncap_first}Service;
 }
 </#if>
