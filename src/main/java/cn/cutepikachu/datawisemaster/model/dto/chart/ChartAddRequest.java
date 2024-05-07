@@ -26,11 +26,6 @@ public class ChartAddRequest implements Serializable {
     @Length(max = 128)
     private String name;
     /**
-     * 原始数据
-     */
-    @NotEmpty
-    private String data;
-    /**
      * 图表类型
      */
     @NotEmpty

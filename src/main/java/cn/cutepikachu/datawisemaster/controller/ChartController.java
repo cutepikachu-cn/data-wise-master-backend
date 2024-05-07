@@ -10,18 +10,22 @@ import cn.cutepikachu.datawisemaster.model.entity.Chart;
 import cn.cutepikachu.datawisemaster.model.entity.User;
 import cn.cutepikachu.datawisemaster.model.enums.UserRole;
 import cn.cutepikachu.datawisemaster.model.vo.ChartVO;
+import cn.cutepikachu.datawisemaster.service.IChartService;
 import cn.cutepikachu.datawisemaster.service.IUserService;
+import cn.cutepikachu.datawisemaster.util.ExcelUtils;
 import cn.cutepikachu.datawisemaster.util.ResultUtils;
 import cn.cutepikachu.datawisemaster.util.ThrowUtils;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.*;
-import jakarta.annotation.Resource;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
-import cn.cutepikachu.datawisemaster.service.IChartService;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * <p>
@@ -40,25 +44,50 @@ public class ChartController {
     @Resource
     private IUserService userService;
 
+    @Resource
+    private Validator validator;
+
     /**
-     * 添加图表
-     * @param chartAddRequest
+     * 生成图表请求
+     *
+     * @param dataFile
+     * @param demandInfo
      * @param request
      * @return
      */
-    @PostMapping("/add")
-    public BaseResponse<?> addChart(@RequestBody @Valid ChartAddRequest chartAddRequest, HttpServletRequest request) {
+    @PostMapping("/gen")
+    public BaseResponse<?> genChart(@RequestPart MultipartFile dataFile, String demandInfo, HttpServletRequest request) {
+        // 参数校验
+        ChartAddRequest chartAddRequest = JSONUtil.toBean(demandInfo, ChartAddRequest.class);
+        validator.validate(chartAddRequest);
+        String data = ExcelUtils.excelToCSV(dataFile);
+        String goal = chartAddRequest.getGoal();
+        String name = chartAddRequest.getName();
+        String chartType = chartAddRequest.getChartType();
+
+
+        // 用户输入
+        StringBuilder userInput = new StringBuilder();
+        // {"goal":"分析网站用户增长趋势","name":"用户增长趋势表","chartType":"line"}
+        userInput.append("你是一个数据分析师，根据我提供的的分析目标和原始数据，输出分析结论\n");
+        userInput.append("分析目标: ").append(goal).append('\n');
+        userInput.append("图表名称: ").append(name).append('\n');
+        userInput.append("图表类型: ").append(chartType).append('\n');
+        userInput.append(data);
+
         Chart chart = new Chart();
+        chart.setData(data);
         BeanUtil.copyProperties(chartAddRequest, chart);
         User loginUser = userService.getLoginUser(request);
         chart.setUserId(loginUser.getId());
-        boolean result = chartService.save(chart);
-        ThrowUtils.throwIf(!result, ResponseCode.OPERATION_ERROR);
-        return ResultUtils.success("添加图表成功");
+        // boolean result = chartService.save(chart);
+        // ThrowUtils.throwIf(!result, ResponseCode.OPERATION_ERROR);
+        return ResultUtils.success("添加图表成功", userInput);
     }
 
     /**
      * 删除图表
+     *
      * @param deleteRequest
      * @return
      */
