@@ -37,6 +37,10 @@ public class ChartVO extends BaseVO<Chart, ChartVO> implements Serializable {
      */
     private String goal;
     /**
+     * 图表名称
+     */
+    private String name;
+    /**
      * 原始数据
      */
     private String data;
@@ -47,11 +51,11 @@ public class ChartVO extends BaseVO<Chart, ChartVO> implements Serializable {
     /**
      * AI分析生成的图表数据
      */
-    private String aigcChart;
+    private String genChart;
     /**
      * AI分析的结论
      */
-    private String aigcResult;
+    private String genResult;
     /**
      * 创建时间
      */

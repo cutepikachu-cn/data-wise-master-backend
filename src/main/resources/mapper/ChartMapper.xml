@@ -7,10 +7,11 @@
         <id column="id" property="id" />
         <result column="user_id" property="userId" />
         <result column="goal" property="goal" />
+        <result column="name" property="name" />
         <result column="data" property="data" />
         <result column="chart_type" property="chartType" />
-        <result column="aigc_chart" property="aigcChart" />
-        <result column="aigc_result" property="aigcResult" />
+        <result column="gen_chart" property="genChart" />
+        <result column="gen_result" property="genResult" />
         <result column="create_time" property="createTime" />
         <result column="update_time" property="updateTime" />
         <result column="is_delete" property="isDelete" />
@@ -18,7 +19,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, user_id, goal, `data`, chart_type, aigc_chart, aigc_result, create_time, update_time, is_delete
+        id, user_id, goal, name, `data`, chart_type, gen_chart, gen_result, create_time, update_time, is_delete
     </sql>
 
 </mapper>

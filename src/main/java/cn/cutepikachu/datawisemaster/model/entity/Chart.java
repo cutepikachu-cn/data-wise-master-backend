@@ -49,6 +49,10 @@ public class Chart extends BaseEntity<Chart, ChartVO> implements Serializable {
     @TableField("`goal`")
     private String goal;
 
+    @Schema(description = "图表名称")
+    @TableField("`name`")
+    private String name;
+
     @Schema(description = "原始数据")
     @TableField("`data`")
     private String data;
@@ -58,12 +62,12 @@ public class Chart extends BaseEntity<Chart, ChartVO> implements Serializable {
     private String chartType;
 
     @Schema(description = "AI分析生成的图表数据")
-    @TableField("`aigc_chart`")
-    private String aigcChart;
+    @TableField("`gen_chart`")
+    private String genChart;
 
     @Schema(description = "AI分析的结论")
-    @TableField("`aigc_result`")
-    private String aigcResult;
+    @TableField("`gen_result`")
+    private String genResult;
 
     @Schema(description = "创建时间")
     @TableField(value = "`create_time`", fill = FieldFill.INSERT)
@@ -84,13 +88,15 @@ public class Chart extends BaseEntity<Chart, ChartVO> implements Serializable {
 
     public static final String GOAL = "goal";
 
+    public static final String NAME = "name";
+
     public static final String DATA = "data";
 
     public static final String CHART_TYPE = "chart_type";
 
-    public static final String AIGC_CHART = "aigc_chart";
+    public static final String GEN_CHART = "gen_chart";
 
-    public static final String AIGC_RESULT = "aigc_result";
+    public static final String GEN_RESULT = "gen_result";
 
     public static final String CREATE_TIME = "create_time";
 
