@@ -3,7 +3,7 @@ spring:
     name: data-wise-master
   # 默认 dev 环境
   profiles:
-    active: dev
+    active: prod
   # session 配置
   session:
     # 30 天过期
@@ -54,6 +54,7 @@ cos:
     region: xxx
     bucket: xxx
 
+
 knife4j:
   enable: true
   openapi:
@@ -65,3 +66,7 @@ knife4j:
         api-rule-resources:
           - cn.cutepikachu.datawisemaster.controller
 
+yuapi:
+  client:
+    access-key: xxx
+    secret-key: xxx
