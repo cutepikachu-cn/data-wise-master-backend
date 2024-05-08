@@ -12,9 +12,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum SortOrder implements BaseEnum<String> {
-    SORT_ORDER_ASC("升序", "ascend"),
-    SORT_ORDER_DESC("降序", "descend"),
-    UNSORTED("不排序", "unsorted");
+    ASCENDING("升序", "ASCENDING"),
+    DESCENDING("降序", "DESCENDING"),
+    UNSORTED("不排序", "UNSORTED");
 
     private final String text;
     @EnumValue

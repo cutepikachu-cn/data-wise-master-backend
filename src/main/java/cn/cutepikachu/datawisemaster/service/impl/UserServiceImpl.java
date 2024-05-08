@@ -165,7 +165,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         lambdaQueryWrapper.like(StrUtil.isNotBlank(userProfile), User::getUserProfile, userProfile);
         // 排序
         if (StrUtil.isNotBlank(sortField)) {
-            boolean isAsc = sortOrder == SortOrder.SORT_ORDER_ASC;
+            boolean isAsc = sortOrder == SortOrder.ASCENDING;
             switch (sortField.toLowerCase()) {
                 case "createtime":
                     lambdaQueryWrapper.orderBy(true, isAsc, User::getCreateTime);

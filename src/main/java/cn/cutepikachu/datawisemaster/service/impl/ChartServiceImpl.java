@@ -47,7 +47,7 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart> implements
         lambdaQueryWrapper.eq(StrUtil.isNotEmpty(chartType), Chart::getChartType, chartType);
 
         if (SqlUtil.validSortField(sortField)) {
-            boolean isAsc = sortOrder == SortOrder.SORT_ORDER_ASC;
+            boolean isAsc = sortOrder == SortOrder.ASCENDING;
             switch (sortField.toLowerCase()) {
                 case "createtime":
                     lambdaQueryWrapper.orderBy(true, isAsc, Chart::getCreateTime);

@@ -12,9 +12,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum UserRole implements BaseEnum<String> {
-    USER("用户", "user"),
-    ADMIN("管理员", "admin"),
-    BAN("封禁", "ban");
+    USER("用户", "USER"),
+    ADMIN("管理员", "ADMIN"),
+    BAN("封禁", "BAN");
 
     private final String text;
     @EnumValue

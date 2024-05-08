@@ -77,7 +77,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements IP
         lambdaQueryWrapper.eq(ObjectUtil.isNotEmpty(id), Post::getId, id);
         lambdaQueryWrapper.eq(ObjectUtil.isNotEmpty(userId), Post::getUserId, userId);
         if (SqlUtil.validSortField(sortField)) {
-            boolean isAsc = sortOrder == SortOrder.SORT_ORDER_ASC;
+            boolean isAsc = sortOrder == SortOrder.ASCENDING;
             switch (sortField.toLowerCase()) {
                 case "thumbnum":
                     lambdaQueryWrapper.orderBy(true, isAsc, Post::getThumbNum);

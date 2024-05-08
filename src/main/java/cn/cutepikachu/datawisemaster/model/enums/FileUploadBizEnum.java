@@ -12,7 +12,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum FileUploadBizEnum implements BaseEnum<String> {
-    USER_AVATAR("用户头像", "user_avatar");
+    USER_AVATAR("用户头像", "USER_AVATAR");
 
     private final String text;
     @EnumValue
