@@ -21,7 +21,7 @@ create table if not exists `user`
     `update_time`   datetime     default current_timestamp not null on update current_timestamp comment '更新时间',
     `is_delete`     tinyint      default 0                 not null comment '是否删除',
     unique key uk_user_account (`user_account`)
-) comment '用户表' collate = utf8mb4_unicode_ci;
+) comment '用户' collate = utf8mb4_unicode_ci;
 INSERT INTO data_wise_master.user (id, user_account, user_password, user_nickname, user_avatar, user_profile, user_role,
                                    create_time, update_time, is_delete)
 VALUES (1, 'administrator', '37c6f5938f00d2780a6d75f3eac103a3', '皮卡丘管理员',
@@ -88,4 +88,4 @@ create table if not exists `chart`
     `update_time` datetime default current_timestamp not null on update current_timestamp comment '更新时间',
     `is_delete`   tinyint  default 0                 not null comment '是否删除',
     index idx_user_id (`user_id`)
-) comment '图表信息表' collate = utf8mb4_unicode_ci;
+) comment '图表信息' collate = utf8mb4_unicode_ci;

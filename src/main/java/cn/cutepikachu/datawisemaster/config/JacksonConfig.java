@@ -14,18 +14,23 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
  * @version 1.0
  */
 @JsonComponent
-public class JsonConfig {
+public class JacksonConfig {
 
     /**
-     * 添加 Long 转 json 精度丢失的配置
+     * Jackson 配置
      */
     @Bean
     public ObjectMapper jacksonObjectMapper(Jackson2ObjectMapperBuilder builder) {
         ObjectMapper objectMapper = builder.createXmlMapper(false).build();
+        // 添加 Long / long 转 json 精度丢失的配置
         SimpleModule module = new SimpleModule();
         module.addSerializer(Long.class, ToStringSerializer.instance);
         module.addSerializer(Long.TYPE, ToStringSerializer.instance);
         objectMapper.registerModule(module);
+
+        // 配置枚举值转化
+        // objectMapper.configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
         return objectMapper;
     }
+
 }

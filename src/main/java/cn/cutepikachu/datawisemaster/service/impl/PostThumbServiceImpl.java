@@ -5,15 +5,16 @@ import cn.cutepikachu.datawisemaster.exception.BusinessException;
 import cn.cutepikachu.datawisemaster.mapper.PostThumbMapper;
 import cn.cutepikachu.datawisemaster.model.entity.Post;
 import cn.cutepikachu.datawisemaster.model.entity.PostThumb;
-import cn.cutepikachu.datawisemaster.model.entity.User;
 import cn.cutepikachu.datawisemaster.service.IPostService;
 import cn.cutepikachu.datawisemaster.service.IPostThumbService;
-import cn.cutepikachu.datawisemaster.util.ThrowUtils;
+import cn.cutepikachu.datawisemaster.service.IUserService;
+import cn.cutepikachu.datawisemaster.util.ThrowUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import jakarta.annotation.Resource;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
 
 /**
  * <p>
@@ -29,20 +30,16 @@ public class PostThumbServiceImpl extends ServiceImpl<PostThumbMapper, PostThumb
     @Resource
     private IPostService postService;
 
-    /**
-     * 点赞
-     *
-     * @param postId
-     * @param loginUser
-     * @return
-     */
+    @Resource
+    private IUserService userService;
+
     @Override
-    public int doPostThumb(long postId, User loginUser) {
+    public boolean doPostThumb(Long postId) {
         // 判断实体是否存在，根据类别获取实体
         Post post = postService.getById(postId);
-        ThrowUtils.throwIf(post == null, ResponseCode.NOT_FOUND_ERROR);
+        ThrowUtil.throwIf(post == null, ResponseCode.NOT_FOUND_ERROR);
         // 是否已点赞
-        long userId = loginUser.getId();
+        Long userId = userService.getLoginUser().getId();
         // 每个用户串行点赞
         // 锁必须要包裹住事务方法
         IPostThumbService postThumbService = (IPostThumbService) AopContext.currentProxy();
@@ -51,15 +48,8 @@ public class PostThumbServiceImpl extends ServiceImpl<PostThumbMapper, PostThumb
         }
     }
 
-    /**
-     * 封装了事务的方法
-     *
-     * @param userId
-     * @param postId
-     * @return
-     */
     @Override
-    public int doPostThumbInner(long userId, long postId) {
+    public boolean doPostThumbInner(Long userId, Long postId) {
         PostThumb postThumb = new PostThumb();
         postThumb.setUserId(userId);
         postThumb.setPostId(postId);
@@ -76,7 +66,7 @@ public class PostThumbServiceImpl extends ServiceImpl<PostThumbMapper, PostThumb
                         .gt(Post::getThumbNum, 0)
                         .setSql("thumb_num = thumb_num - 1")
                         .update();
-                return result ? -1 : 0;
+                return result;
             } else {
                 throw new BusinessException(ResponseCode.SYSTEM_ERROR);
             }
@@ -89,12 +79,13 @@ public class PostThumbServiceImpl extends ServiceImpl<PostThumbMapper, PostThumb
                         .eq(Post::getId, postId)
                         .setSql("thumb_num = thumb_num + 1")
                         .update();
-                return result ? 1 : 0;
+                return result;
             } else {
                 throw new BusinessException(ResponseCode.SYSTEM_ERROR);
             }
         }
     }
+
 }
 
 

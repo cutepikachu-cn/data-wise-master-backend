@@ -1,26 +1,36 @@
 package cn.cutepikachu.datawisemaster.common;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.io.Serializable;
 
 /**
+ * 基础响应类
+ *
  * @author 笨蛋皮卡丘
  * @version 1.0
  */
 @Data
 @AllArgsConstructor
+@ApiModel(description = "响应对象")
 public class BaseResponse<T> implements Serializable {
+    private static final long serialVersionUID = 1L;
+    @ApiModelProperty("是否成功")
     private boolean success;
-    private int code;
+    @ApiModelProperty("响应码")
+    private Integer code;
+    @ApiModelProperty("数据")
     private T data;
+    @ApiModelProperty("响应信息")
     private String message;
 
     /**
      * 响应，响应码
      *
-     * @param responseCode
+     * @param responseCode 响应码
      */
     public BaseResponse(ResponseCode responseCode) {
         this(responseCode == ResponseCode.SUCCESS, responseCode.getCode(), null, responseCode.getMessage());
@@ -29,8 +39,8 @@ public class BaseResponse<T> implements Serializable {
     /**
      * 响应，带数据
      *
-     * @param responseCode
-     * @param data
+     * @param responseCode 响应码
+     * @param data         数据
      */
     public BaseResponse(ResponseCode responseCode, T data) {
         this(responseCode == ResponseCode.SUCCESS, responseCode.getCode(), data, responseCode.getMessage());
@@ -39,8 +49,8 @@ public class BaseResponse<T> implements Serializable {
     /**
      * 响应，带信息
      *
-     * @param responseCode
-     * @param message
+     * @param responseCode 响应码
+     * @param message      信息
      */
     public BaseResponse(ResponseCode responseCode, String message) {
         this(responseCode == ResponseCode.SUCCESS, responseCode.getCode(), null, message);
@@ -49,9 +59,9 @@ public class BaseResponse<T> implements Serializable {
     /**
      * 响应，带信息和数据
      *
-     * @param responseCode
-     * @param data
-     * @param message
+     * @param responseCode 响应码
+     * @param data         数据
+     * @param message      信息
      */
     public BaseResponse(ResponseCode responseCode, T data, String message) {
         this(responseCode == ResponseCode.SUCCESS, responseCode.getCode(), data, message);
@@ -60,10 +70,11 @@ public class BaseResponse<T> implements Serializable {
     /**
      * 响应，带自定响应码和信息
      *
-     * @param responseCode
-     * @param message
+     * @param responseCode 响应码
+     * @param message      信息
      */
     public BaseResponse(Integer responseCode, String message) {
-        this(responseCode.equals(0), responseCode, null, message);
+        this(responseCode == 0, responseCode, null, message);
     }
+
 }

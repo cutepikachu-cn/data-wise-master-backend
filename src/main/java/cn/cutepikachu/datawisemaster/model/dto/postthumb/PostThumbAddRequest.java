@@ -1,8 +1,11 @@
 package cn.cutepikachu.datawisemaster.model.dto.postthumb;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.io.Serial;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
@@ -12,13 +15,12 @@ import java.io.Serializable;
  * @version 1.0
  */
 @Data
+@ApiModel(description = "帖子点赞请求")
 public class PostThumbAddRequest implements Serializable {
-
-    /**
-     * 帖子 id
-     */
+    private static final long serialVersionUID = 1L;
+    @ApiModelProperty("帖子id")
+    @NotNull
+    @Min(1)
     private Long postId;
 
-    @Serial
-    private static final long serialVersionUID = 1L;
 }

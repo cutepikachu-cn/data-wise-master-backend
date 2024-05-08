@@ -33,20 +33,17 @@ public class MyBatisPlusGeneratorTest {
     private static final String projectPackage = "cn.cutepikachu.datawisemaster";
 
     public static void main(String[] args) {
-        generateCode();
-    }
-
-    public static void generateCode() {
         FastAutoGenerator
                 // 数据源配置
                 .create(new DataSourceConfig.Builder("jdbc:mysql://localhost:3306/data_wise_master?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai", "root", "root123456789")
-                        .keyWordsHandler(new MySqlKeyWordsHandler()))
+                        .keyWordsHandler(new MySqlKeyWordsHandler())
+                )
                 // 全局配置
                 .globalConfig(globalConfigBuilder -> globalConfigBuilder
                         .outputDir(outputDir) // 输出目录
                         .disableOpenDir() // 禁止打开输出目录
                         .author(auth) // 作者名
-                        .enableSpringdoc() // 开启 springdoc 模式
+                        .enableSwagger() // 开启 swagger 模式
                         .dateType(DateType.TIME_PACK) // 时间策略
                         .commentDate("yyyy-MM-dd HH:mm:ss") // 注释日期时间格式
                 )
@@ -118,10 +115,21 @@ public class MyBatisPlusGeneratorTest {
                             .templatePath("/templates/model/vo/vo.java.ftl")
                             .enableFileOverride()
                             .build();
+                    CustomFile queryRequestFile = new CustomFile.Builder()
+                            .fileName("QueryRequest.java")
+                            .packageName("model.dto")
+                            .templatePath("/templates/model/dto/queryRequest.java.ftl")
+                            .enableFileOverride()
+                            .build();
                     Map<String, Object> customMap = new HashMap<>();
                     customMap.put("projectPackage", projectPackage);
                     injectionConfigBuilder.customFile(VOFile);
+                    injectionConfigBuilder.customFile(queryRequestFile);
                     injectionConfigBuilder.customMap(customMap);
+
+                    // injectionConfigBuilder.beforeOutputFile((tableInfo, objectMap) -> {
+                    //     System.out.println(objectMap);
+                    // });
                 })
                 .execute();
         ;

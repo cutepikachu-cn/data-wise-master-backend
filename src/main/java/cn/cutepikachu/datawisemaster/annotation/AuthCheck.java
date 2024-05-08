@@ -20,7 +20,7 @@ public @interface AuthCheck {
     /**
      * 必须有某些角色
      *
-     * @return
+     * @return 角色数组
      */
     UserRole[] mustRole() default UserRole.USER;
 

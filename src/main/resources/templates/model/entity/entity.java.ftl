@@ -1,3 +1,5 @@
+<#assign entityUnCapFirst=entity?uncap_first>
+<#assign vo>${entity}VO</#assign>
 package ${package.Entity};
 
 <#list table.importPackages as pkg>
@@ -20,10 +22,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
     </#if>
 </#if>
-<#if entitySerialVersionUID>
-import java.io.Serial;
-</#if>
-import ${package.Parent}.model.vo.${entity}VO;
+import ${package.Parent}.model.vo.${vo};
 
 /**
  * <p>
@@ -50,10 +49,10 @@ import ${package.Parent}.model.vo.${entity}VO;
 <#if springdoc>
 @Schema(name = "${entity}", description = "${table.comment!}")
 <#elseif swagger>
-@ApiModel(value = "${entity}对象", description = "${table.comment!}")
+@ApiModel(value = "${entity}", description = "${table.comment!}")
 </#if>
 <#if superEntityClass??>
-public class ${entity} extends ${superEntityClass}<${entity}, ${entity}VO><#if entitySerialVersionUID> implements Serializable</#if> {
+public class ${entity} extends ${superEntityClass}<${entity}, ${vo}><#if entitySerialVersionUID> implements Serializable</#if> {
 <#elseif activeRecord>
 public class ${entity} extends Model<${entity}> {
 <#elseif entitySerialVersionUID>
@@ -62,7 +61,7 @@ public class ${entity} implements Serializable {
 public class ${entity} {
 </#if>
 <#if entitySerialVersionUID>
-    @Serial
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 </#if>

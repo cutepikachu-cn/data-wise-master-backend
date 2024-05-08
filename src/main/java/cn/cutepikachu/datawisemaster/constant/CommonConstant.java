@@ -12,4 +12,5 @@ public interface CommonConstant {
      * 盐，混淆密码
      */
     String SALT = "pikachu";
+
 }

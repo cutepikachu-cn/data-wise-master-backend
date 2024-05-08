@@ -1,13 +1,13 @@
 package cn.cutepikachu.datawisemaster.model.dto.user;
 
 import cn.cutepikachu.datawisemaster.model.enums.UserRole;
-import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
-import java.io.Serial;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
@@ -15,28 +15,24 @@ import java.io.Serializable;
  * @version 1.0
  */
 @Data
+@ApiModel(description = "用户更新请求")
 public class UserUpdateRequest implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+    @ApiModelProperty("用户id")
     @NotNull
     @Min(1)
     private Long id;
-
+    @ApiModelProperty("用户昵称")
     @Length(min = 4, max = 20)
     private String userNickname;
-
-    @Length(max = 1024)
+    @ApiModelProperty("用户头像链接")
+    @Length(min = 1, max = 1024)
     private String userAvatar;
-
-    @Length(max = 512)
+    @ApiModelProperty("用户简介")
+    @Length(min = 1, max = 512)
     private String userProfile;
+    @ApiModelProperty("用户角色")
+    private UserRole userRole;
 
-    private String userRole;
-
-    @AssertTrue
-    boolean isValidUserRole() {
-        return userRole == null || UserRole.getEnumByValue(userRole) != null;
-    }
-
-    @Serial
-    private static final long serialVersionUID = 1L;
 }

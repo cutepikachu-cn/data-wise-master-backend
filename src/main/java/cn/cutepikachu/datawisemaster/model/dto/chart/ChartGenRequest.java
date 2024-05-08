@@ -1,10 +1,11 @@
 package cn.cutepikachu.datawisemaster.model.dto.chart;
 
-import jakarta.validation.constraints.NotEmpty;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
-import java.io.Serial;
+import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
 
 /**
@@ -12,26 +13,20 @@ import java.io.Serializable;
  * @version 1.0
  */
 @Data
-public class ChartAddRequest implements Serializable {
-    /**
-     * 分析目标
-     */
+@ApiModel(description = "生成图表请求")
+public class ChartGenRequest implements Serializable {
+    @ApiModelProperty("分析目标")
     @NotEmpty
     @Length(max = 1024)
     private String goal;
-    /**
-     * 图表名称
-     */
+    @ApiModelProperty("图表名称")
     @NotEmpty
     @Length(max = 128)
     private String name;
-    /**
-     * 图表类型
-     */
+    @ApiModelProperty("图表类型")
     @NotEmpty
     @Length(max = 128)
     private String chartType;
 
-    @Serial
     private static final long serialVersionUID = 1L;
 }

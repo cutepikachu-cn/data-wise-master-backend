@@ -7,6 +7,7 @@ package cn.cutepikachu.datawisemaster.constant;
  * @version 1.0
  */
 public interface FileConstant {
+
     /**
      * COS 访问地址
      */
@@ -18,4 +19,5 @@ public interface FileConstant {
      * /文件业务/用户id/文件名
      */
     String PATH_FORMAT = "/%s/%s/%s";
+
 }

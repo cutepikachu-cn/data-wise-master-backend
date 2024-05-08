@@ -1,17 +1,18 @@
 package cn.cutepikachu.datawisemaster.model.vo;
 
 import cn.cutepikachu.datawisemaster.model.entity.User;
+import cn.cutepikachu.datawisemaster.model.enums.UserRole;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.io.Serial;
 import java.io.Serializable;
 
 /**
  * <p>
- * 用户表 VO
+ * 用户 VO
  * </p>
  *
  * @author 笨蛋皮卡丘
@@ -22,26 +23,15 @@ import java.io.Serializable;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class UserVO extends BaseVO<User, UserVO> implements Serializable {
-    @Serial
     private static final long serialVersionUID = 1L;
-    /**
-     * id
-     */
+    @ApiModelProperty("id")
     private Long id;
-    /**
-     * 用户昵称
-     */
+    @ApiModelProperty("用户昵称")
     private String userNickname;
-    /**
-     * 用户头像
-     */
+    @ApiModelProperty("用户头像")
     private String userAvatar;
-    /**
-     * 用户简介
-     */
+    @ApiModelProperty("用户简介")
     private String userProfile;
-    /**
-     * 用户角色：user/admin/ban
-     */
-    private String userRole;
+    @ApiModelProperty("用户角色：user/admin/ban")
+    private UserRole userRole;
 }

@@ -1,10 +1,11 @@
 package cn.cutepikachu.datawisemaster.model.dto.user;
 
-import jakarta.validation.constraints.Pattern;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
-import java.io.Serial;
+import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 
 /**
@@ -12,20 +13,21 @@ import java.io.Serializable;
  * @version 1.0
  */
 @Data
+@ApiModel(description = "用户更新个人信息请求")
 public class UserUpdateSelfRequest implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+    @ApiModelProperty("用户密码")
     @Pattern(regexp = "^[\\w-]{6,20}$")
     private String userPassword;
-
+    @ApiModelProperty("用户昵称")
     @Length(min = 4, max = 20)
     private String userNickname;
-
-    @Length(max = 1024)
+    @ApiModelProperty("用户头像链接")
+    @Length(min = 1, max = 1024)
     private String userAvatar;
-
-    @Length(max = 512)
+    @ApiModelProperty("用户简介")
+    @Length(min = 1, max = 512)
     private String userProfile;
 
-    @Serial
-    private static final long serialVersionUID = 1L;
 }

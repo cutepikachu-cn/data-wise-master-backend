@@ -4,7 +4,7 @@ import cn.cutepikachu.datawisemaster.annotation.AuthCheck;
 import cn.cutepikachu.datawisemaster.common.BaseResponse;
 import cn.cutepikachu.datawisemaster.common.DeleteRequest;
 import cn.cutepikachu.datawisemaster.common.ResponseCode;
-import cn.cutepikachu.datawisemaster.model.dto.chart.ChartAddRequest;
+import cn.cutepikachu.datawisemaster.model.dto.chart.ChartGenRequest;
 import cn.cutepikachu.datawisemaster.model.dto.chart.ChartQueryRequest;
 import cn.cutepikachu.datawisemaster.model.entity.Chart;
 import cn.cutepikachu.datawisemaster.model.entity.User;
@@ -12,20 +12,18 @@ import cn.cutepikachu.datawisemaster.model.enums.UserRole;
 import cn.cutepikachu.datawisemaster.model.vo.ChartVO;
 import cn.cutepikachu.datawisemaster.service.IChartService;
 import cn.cutepikachu.datawisemaster.service.IUserService;
-import cn.cutepikachu.datawisemaster.util.ExcelUtils;
-import cn.cutepikachu.datawisemaster.util.ResultUtils;
-import cn.cutepikachu.datawisemaster.util.ThrowUtils;
+import cn.cutepikachu.datawisemaster.util.ExcelUtil;
+import cn.cutepikachu.datawisemaster.util.ResponseUtil;
+import cn.cutepikachu.datawisemaster.util.ThrowUtil;
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
-import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.annotation.Resource;
+import javax.validation.Valid;
 
 /**
  * <p>
@@ -39,78 +37,79 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/chart")
 public class ChartController {
-    @Resource
-    private IChartService chartService;
-    @Resource
-    private IUserService userService;
 
     @Resource
-    private Validator validator;
+    private IChartService chartService;
+
+    @Resource
+    private IUserService userService;
 
     /**
      * 生成图表请求
      *
      * @param dataFile
-     * @param demandInfo
-     * @param request
-     * @return
+     * @param chartGenRequest
      */
     @PostMapping("/gen")
-    public BaseResponse<?> genChart(@RequestPart MultipartFile dataFile, String demandInfo, HttpServletRequest request) {
+    public BaseResponse<?> genChart(@RequestPart MultipartFile dataFile,
+                                    @Valid ChartGenRequest chartGenRequest) {
         // 参数校验
-        ChartAddRequest chartAddRequest = JSONUtil.toBean(demandInfo, ChartAddRequest.class);
-        validator.validate(chartAddRequest);
-        String data = ExcelUtils.excelToCSV(dataFile);
-        String goal = chartAddRequest.getGoal();
-        String name = chartAddRequest.getName();
-        String chartType = chartAddRequest.getChartType();
-
+        String data = ExcelUtil.excelToCSV(dataFile);
+        String goal = chartGenRequest.getGoal();
+        String name = chartGenRequest.getName();
+        String chartType = chartGenRequest.getChartType();
 
         // 用户输入
         StringBuilder userInput = new StringBuilder();
         // {"goal":"分析网站用户增长趋势","name":"用户增长趋势表","chartType":"line"}
-        userInput.append("你是一个数据分析师，根据我提供的的分析目标和原始数据，输出分析结论\n");
-        userInput.append("分析目标: ").append(goal).append('\n');
-        userInput.append("图表名称: ").append(name).append('\n');
-        userInput.append("图表类型: ").append(chartType).append('\n');
-        userInput.append(data);
+        userInput.append("你是一个数据分析师和前端开发专家，根据我提供的的分析目标和原始数据，输出分析图表和结论\n");
+        userInput.append("分析需求: \n").append(goal).append('\n');
+        // userInput.append("图表名称: \n").append(name).append('\n');
+        // userInput.append("图表类型: \n").append(chartType).append('\n');
+        userInput.append("原始数据: \n").append(data);
+        userInput
+                .append("请根据这两部分内容，按照以下指定格式生成内容（此外不要输出任何多余的开头、结尾、注释）\n")
+                .append("【【【【【\n")
+                .append("{前端 Echarts V5 的 option 配置对象js代码，合理地将数据进行可视化，不要生成任何多余的内容，比如注释}\n")
+                .append("【【【【【\n")
+                .append("{明确的数据分析结论、越详细越好，不要生成多余的注释}");
 
         Chart chart = new Chart();
         chart.setData(data);
-        BeanUtil.copyProperties(chartAddRequest, chart);
-        User loginUser = userService.getLoginUser(request);
+        BeanUtil.copyProperties(chartGenRequest, chart);
+        User loginUser = userService.getLoginUser();
         chart.setUserId(loginUser.getId());
         // boolean result = chartService.save(chart);
         // ThrowUtils.throwIf(!result, ResponseCode.OPERATION_ERROR);
-        return ResultUtils.success("添加图表成功", userInput);
+        // System.out.println(userInput);
+        return ResponseUtil.success("添加图表成功", userInput);
     }
 
     /**
      * 删除图表
      *
      * @param deleteRequest
-     * @return
      */
     @PostMapping("/delete")
-    public BaseResponse<?> deleteChart(@RequestBody @Valid DeleteRequest deleteRequest, HttpServletRequest request) {
+    public BaseResponse<?> deleteChart(@RequestBody @Valid DeleteRequest deleteRequest) {
         Long id = deleteRequest.getId();
         Chart chart = chartService.getById(id);
-        ThrowUtils.throwIf(chart == null, ResponseCode.PARAMS_ERROR, "图表不存在");
-        User loginUser = userService.getLoginUser(request);
-        ThrowUtils.throwIf(!chart.getUserId().equals(loginUser.getId()), ResponseCode.NO_AUTH_ERROR);
+        ThrowUtil.throwIf(chart == null, ResponseCode.PARAMS_ERROR, "图表不存在");
+        User loginUser = userService.getLoginUser();
+        ThrowUtil.throwIf(!chart.getUserId().equals(loginUser.getId()), ResponseCode.NO_AUTH_ERROR);
         boolean result = chartService.removeById(id);
-        ThrowUtils.throwIf(!result, ResponseCode.OPERATION_ERROR);
-        return ResultUtils.success("删除图表成功");
+        ThrowUtil.throwIf(!result, ResponseCode.OPERATION_ERROR);
+        return ResponseUtil.success("删除图表成功");
     }
 
     @GetMapping("/get/vo")
-    public BaseResponse<ChartVO> getChartVOById(@RequestParam Long id, HttpServletRequest request) {
+    public BaseResponse<ChartVO> getChartVOById(@RequestParam Long id) {
         Chart chart = chartService.getById(id);
-        ThrowUtils.throwIf(chart == null, ResponseCode.PARAMS_ERROR, "图表不存在");
-        User loginUser = userService.getLoginUser(request);
-        ThrowUtils.throwIf(!chart.getUserId().equals(loginUser.getId()), ResponseCode.NO_AUTH_ERROR);
+        ThrowUtil.throwIf(chart == null, ResponseCode.PARAMS_ERROR, "图表不存在");
+        User loginUser = userService.getLoginUser();
+        ThrowUtil.throwIf(!chart.getUserId().equals(loginUser.getId()), ResponseCode.NO_AUTH_ERROR);
         ChartVO chartVO = chartService.getChartVO(chart);
-        return ResultUtils.success(chartVO);
+        return ResponseUtil.success(chartVO);
     }
 
     @PostMapping("/page")
@@ -120,18 +119,18 @@ public class ChartController {
         int pageSize = chartQueryRequest.getPageSize();
         LambdaQueryWrapper<Chart> lambdaQueryWrapper = chartService.getLambdaQueryWrapper(chartQueryRequest);
         Page<Chart> chartPage = chartService.page(new Page<>(current, pageSize), lambdaQueryWrapper);
-        return ResultUtils.success(chartPage);
+        return ResponseUtil.success(chartPage);
     }
 
     @PostMapping("/page/vo/self")
-    public BaseResponse<Page<ChartVO>> pageSelfChartVO(@RequestBody @Valid ChartQueryRequest chartQueryRequest, HttpServletRequest request) {
+    public BaseResponse<Page<ChartVO>> pageSelfChartVO(@RequestBody @Valid ChartQueryRequest chartQueryRequest) {
         int current = chartQueryRequest.getCurrent();
         int pageSize = chartQueryRequest.getPageSize();
-        User loginUser = userService.getLoginUser(request);
+        User loginUser = userService.getLoginUser();
         chartQueryRequest.setUserId(loginUser.getId());
         LambdaQueryWrapper<Chart> lambdaQueryWrapper = chartService.getLambdaQueryWrapper(chartQueryRequest);
         Page<Chart> chartPage = chartService.page(new Page<>(current, pageSize), lambdaQueryWrapper);
         Page<ChartVO> chartVOPage = chartService.getChartVOPage(chartPage);
-        return ResultUtils.success(chartVOPage);
+        return ResponseUtil.success(chartVOPage);
     }
 }

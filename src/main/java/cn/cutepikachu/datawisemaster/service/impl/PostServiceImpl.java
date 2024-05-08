@@ -13,17 +13,16 @@ import cn.cutepikachu.datawisemaster.model.vo.PostVO;
 import cn.cutepikachu.datawisemaster.model.vo.UserVO;
 import cn.cutepikachu.datawisemaster.service.IPostService;
 import cn.cutepikachu.datawisemaster.service.IUserService;
-import cn.cutepikachu.datawisemaster.util.SqlUtils;
+import cn.cutepikachu.datawisemaster.util.SqlUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,12 +49,6 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements IP
     @Resource
     private PostFavourMapper postFavourMapper;
 
-    /**
-     * 获取查询包装类
-     *
-     * @param postQueryRequest
-     * @return
-     */
     @Override
     public LambdaQueryWrapper<Post> getLambdaQueryWrapper(PostQueryRequest postQueryRequest) {
         LambdaQueryWrapper<Post> lambdaQueryWrapper = new LambdaQueryWrapper<>();
@@ -64,13 +57,12 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements IP
         }
         String searchText = postQueryRequest.getSearchText();
         String sortField = postQueryRequest.getSortField();
-        String sortOrder = postQueryRequest.getSortOrder();
+        SortOrder sortOrder = postQueryRequest.getSortOrder();
         Long id = postQueryRequest.getId();
         String title = postQueryRequest.getTitle();
         String content = postQueryRequest.getContent();
         List<String> tagList = postQueryRequest.getTags();
         Long userId = postQueryRequest.getUserId();
-        Long notId = postQueryRequest.getNotId();
         // 拼接查询条件
         if (StrUtil.isNotBlank(searchText)) {
             lambdaQueryWrapper.and(qw -> qw.like(Post::getTitle, searchText).or().like(Post::getContent, searchText));
@@ -82,24 +74,29 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements IP
                 lambdaQueryWrapper.like(Post::getTags, "\"" + tag + "\"");
             }
         }
-        lambdaQueryWrapper.ne(ObjectUtil.isNotEmpty(notId), Post::getId, notId);
         lambdaQueryWrapper.eq(ObjectUtil.isNotEmpty(id), Post::getId, id);
         lambdaQueryWrapper.eq(ObjectUtil.isNotEmpty(userId), Post::getUserId, userId);
-        if (SqlUtils.validSortField(sortField)) {
-            boolean isAsc = sortOrder.equals(SortOrder.SORT_ORDER_ASC.getValue());
+        if (SqlUtil.validSortField(sortField)) {
+            boolean isAsc = sortOrder == SortOrder.SORT_ORDER_ASC;
             switch (sortField.toLowerCase()) {
-                case "thumbnum" -> lambdaQueryWrapper.orderBy(true, isAsc, Post::getThumbNum);
-                case "favournum" -> lambdaQueryWrapper.orderBy(true, isAsc, Post::getFavourNum);
-                case "createtime" -> lambdaQueryWrapper.orderBy(true, isAsc, Post::getCreateTime);
+                case "thumbnum":
+                    lambdaQueryWrapper.orderBy(true, isAsc, Post::getThumbNum);
+                    break;
+                case "favournum":
+                    lambdaQueryWrapper.orderBy(true, isAsc, Post::getFavourNum);
+                    break;
+                case "createtime":
+                    lambdaQueryWrapper.orderBy(true, isAsc, Post::getCreateTime);
+                    break;
             }
         }
         return lambdaQueryWrapper;
     }
 
     @Override
-    public PostVO getPostVO(Post post, HttpServletRequest request) {
+    public PostVO getPostVO(Post post) {
         PostVO postVO = post.toVO(PostVO.class);
-        long postId = post.getId();
+        Long postId = post.getId();
         // 1. 关联查询用户信息
         Long userId = post.getUserId();
         User user = null;
@@ -109,7 +106,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements IP
         UserVO userVO = userService.getUserVO(user);
         postVO.setUser(userVO);
         // 2. 已登录，获取用户点赞、收藏状态
-        User loginUser = userService.getLoginUserPermitNull(request);
+        User loginUser = userService.getLoginUser();
         if (loginUser != null) {
             // 获取点赞
             LambdaQueryWrapper<PostThumb> postThumbLambdaQueryWrapper = new LambdaQueryWrapper<>();
@@ -128,7 +125,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements IP
     }
 
     @Override
-    public Page<PostVO> getPostVOPage(Page<Post> postPage, HttpServletRequest request) {
+    public Page<PostVO> getPostVOPage(Page<Post> postPage) {
         List<Post> postList = postPage.getRecords();
         Page<PostVO> postVOPage = new Page<>(postPage.getCurrent(), postPage.getSize(), postPage.getTotal());
         if (CollUtil.isEmpty(postList)) {
@@ -141,7 +138,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements IP
         // 2. 已登录，获取用户点赞、收藏状态
         Map<Long, Boolean> postIdHasThumbMap = new HashMap<>();
         Map<Long, Boolean> postIdHasFavourMap = new HashMap<>();
-        User loginUser = userService.getLoginUserPermitNull(request);
+        User loginUser = userService.getLoginUser();
         if (loginUser != null) {
             Set<Long> postIdSet = postList.stream().map(Post::getId).collect(Collectors.toSet());
             // 获取点赞
@@ -173,6 +170,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements IP
         postVOPage.setRecords(postVOList);
         return postVOPage;
     }
+
 }
 
 

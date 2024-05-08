@@ -2,7 +2,6 @@ package cn.cutepikachu.datawisemaster.service;
 
 import cn.cutepikachu.datawisemaster.model.entity.Post;
 import cn.cutepikachu.datawisemaster.model.entity.PostFavour;
-import cn.cutepikachu.datawisemaster.model.entity.User;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,30 +16,31 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public interface IPostFavourService extends IService<PostFavour> {
     /**
-     * 帖子收藏
+     * 帖子收藏/取消收藏
      *
-     * @param postId
-     * @param loginUser
-     * @return
+     * @param postId 帖子id
+     * @return 释放收藏/取消是否成功
      */
-    int doPostFavour(long postId, User loginUser);
+    boolean doPostFavour(Long postId);
 
     /**
      * 分页获取用户收藏的帖子列表
      *
-     * @param userId
-     * @return
+     * @param current  当前页数
+     * @param pageSize 每页大小
+     * @param userId   用户id
+     * @return 用户收藏帖子分页对象
      */
-    Page<Post> pageFavourPost(long current, long pageSize,
-                              long userId);
+    Page<Post> pageFavourPost(Integer current, Integer pageSize,
+                              Long userId);
 
     /**
      * 帖子收藏（内部服务）
      *
-     * @param userId
-     * @param postId
-     * @return
+     * @param userId 用户id
+     * @param postId 帖子id
+     * @return 是否收藏/取消收藏成功
      */
     @Transactional(rollbackFor = Exception.class)
-    int doPostFavourInner(long userId, long postId);
+    boolean doPostFavourInner(Long userId, Long postId);
 }

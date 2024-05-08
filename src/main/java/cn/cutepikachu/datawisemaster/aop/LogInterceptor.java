@@ -1,7 +1,6 @@
 package cn.cutepikachu.datawisemaster.aop;
 
 import cn.hutool.core.util.StrUtil;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -12,9 +11,12 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.UUID;
 
 /**
+ * 日志拦截
+ *
  * @author 笨蛋皮卡丘
  * @version 1.0
  */
@@ -22,8 +24,13 @@ import java.util.UUID;
 @Component
 @Slf4j
 public class LogInterceptor {
+
     /**
      * 执行拦截
+     *
+     * @param point 切入点
+     * @return Object
+     * @throws Throwable 异常
      */
     @Around("execution(* cn.cutepikachu.datawisemaster.controller.*.*(..))")
     public Object doInterceptor(ProceedingJoinPoint point) throws Throwable {
@@ -50,4 +57,5 @@ public class LogInterceptor {
         log.info("request end, id: {}, cost: {}ms", requestId, totalTimeMillis);
         return result;
     }
+
 }

@@ -2,11 +2,13 @@ package cn.cutepikachu.datawisemaster.model.dto.postfavour;
 
 
 import cn.cutepikachu.datawisemaster.common.PageRequest;
-import jakarta.validation.constraints.NotNull;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.io.Serial;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
@@ -17,14 +19,12 @@ import java.io.Serializable;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
+@ApiModel(value = "PostFavourQueryRequest", description = "帖子收藏查询请求")
 public class PostFavourQueryRequest extends PageRequest implements Serializable {
-
-    /**
-     * 用户 id
-     */
+    private static final long serialVersionUID = 1L;
+    @ApiModelProperty("用户id")
     @NotNull
+    @Min(1)
     private Long userId;
 
-    @Serial
-    private static final long serialVersionUID = 1L;
 }

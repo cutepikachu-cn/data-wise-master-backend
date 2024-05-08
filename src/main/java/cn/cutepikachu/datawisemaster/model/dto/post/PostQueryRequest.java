@@ -2,11 +2,13 @@ package cn.cutepikachu.datawisemaster.model.dto.post;
 
 
 import cn.cutepikachu.datawisemaster.common.PageRequest;
-import jakarta.validation.constraints.Size;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.io.Serial;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.List;
 
@@ -16,57 +18,24 @@ import java.util.List;
  * @author 笨蛋皮卡丘
  * @version 1.0
  */
-@EqualsAndHashCode(callSuper = true)
 @Data
+@EqualsAndHashCode(callSuper = true)
+@ApiModel(value = "PostQueryRequest", description = "帖子")
 public class PostQueryRequest extends PageRequest implements Serializable {
-
-    /**
-     * id
-     */
+    private static final long serialVersionUID = 1L;
+    @ApiModelProperty("id")
     private Long id;
-
-    /**
-     * id
-     */
-    private Long notId;
-
-    /**
-     * 搜索词
-     */
+    @ApiModelProperty("搜索关键词")
     private String searchText;
-
-    /**
-     * 标题
-     */
+    @ApiModelProperty("标题")
     private String title;
-
-    /**
-     * 内容
-     */
+    @ApiModelProperty("内容")
     private String content;
-
-    /**
-     * 标签列表
-     */
+    @ApiModelProperty("标签列表（至少一个）")
     @Size(min = 1)
     private List<String> tags;
-
-    /**
-     * 至少有一个标签
-     */
-    @Size(min = 1)
-    private List<String> orTags;
-
-    /**
-     * 创建用户 id
-     */
+    @ApiModelProperty("用户id")
+    @Min(1)
     private Long userId;
 
-    /**
-     * 收藏用户 id
-     */
-    private Long favourUserId;
-
-    @Serial
-    private static final long serialVersionUID = 1L;
 }

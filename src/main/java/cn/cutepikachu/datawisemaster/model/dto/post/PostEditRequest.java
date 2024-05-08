@@ -1,12 +1,13 @@
 package cn.cutepikachu.datawisemaster.model.dto.post;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
-import java.io.Serial;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.List;
 
@@ -17,23 +18,21 @@ import java.util.List;
  * @version 1.0
  */
 @Data
+@ApiModel(description = "帖子编辑请求")
 public class PostEditRequest implements Serializable {
-
+    private static final long serialVersionUID = 1L;
+    @ApiModelProperty("id")
     @NotNull
+    @Min(1)
     private Long id;
-
-    @NotBlank
-    @Length(max = 80)
+    @ApiModelProperty("标题")
+    @Length(min = 4, max = 80)
     private String title;
-
-    @NotBlank
-    @Length(max = 8192)
+    @ApiModelProperty("内容")
+    @Length(min = 4, max = 8192)
     private String content;
-
-    @NotNull
+    @ApiModelProperty("标签列表")
     @Size(min = 1)
     private List<String> tags;
 
-    @Serial
-    private static final long serialVersionUID = 1L;
 }

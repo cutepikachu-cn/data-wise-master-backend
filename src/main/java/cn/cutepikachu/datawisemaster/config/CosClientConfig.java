@@ -11,6 +11,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
+ * 对象存储客户端配置
+ *
  * @author 笨蛋皮卡丘
  * @version 1.0
  */
@@ -48,5 +50,6 @@ public class CosClientConfig {
         // 生成cos客户端
         return new COSClient(cred, clientConfig);
     }
+
 }
 

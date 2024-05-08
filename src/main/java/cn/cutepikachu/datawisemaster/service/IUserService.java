@@ -2,17 +2,18 @@ package cn.cutepikachu.datawisemaster.service;
 
 import cn.cutepikachu.datawisemaster.model.dto.user.UserQueryRequest;
 import cn.cutepikachu.datawisemaster.model.entity.User;
+import cn.cutepikachu.datawisemaster.model.enums.UserRole;
 import cn.cutepikachu.datawisemaster.model.vo.LoginUserVO;
 import cn.cutepikachu.datawisemaster.model.vo.UserVO;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import jakarta.servlet.http.HttpServletRequest;
 
-import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * <p>
- * 用户表 服务类
+ * 用户 服务类
  * </p>
  *
  * @author 笨蛋皮卡丘
@@ -29,107 +30,77 @@ public interface IUserService extends IService<User> {
      * @param userRole      用户角色
      * @return 新用户 id
      */
-    long userRegister(String userAccount,
+    Long userRegister(String userAccount,
                       String userPassword,
                       String checkPassword,
                       String userNickname,
-                      String userRole);
+                      UserRole userRole);
 
     /**
      * 用户登录
      *
      * @param userAccount  用户账户
      * @param userPassword 用户密码
-     * @param request
-     * @return 脱敏后的用户信息
+     * @return 登录用户信息封装对象
      */
     LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest request);
 
     /**
-     * 获取当前登录用户
-     *
-     * @param request
-     * @return
-     */
-    User getLoginUser(HttpServletRequest request);
-
-    /**
-     * 获取当前登录用户（允许未登录）
-     *
-     * @param request
-     * @return
-     */
-    User getLoginUserPermitNull(HttpServletRequest request);
-
-    /**
-     * 是否为管理员
-     *
-     * @param request
-     * @return
-     */
-    boolean isAdmin(HttpServletRequest request);
-
-    /**
-     * 是否为管理员
-     *
-     * @param user
-     * @return
-     */
-    boolean isAdmin(User user);
-
-    /**
      * 用户注销
      *
-     * @param request
-     * @return
+     * @return 是否注销成功
      */
     boolean userLogout(HttpServletRequest request);
 
     /**
-     * 获取脱敏的已登录用户信息
+     * 获取当前登录用户
      *
-     * @return
+     * @return 当前用户对象
+     */
+    User getLoginUser();
+
+    /**
+     * 获取当前登录用户（允许未登录）
+     *
+     * @return 当前登录用户对象
+     */
+    User getLoginUserPermitNull(HttpServletRequest request);
+
+    /**
+     * 判断用户是否为管理员
+     *
+     * @param user 用户对象
+     * @return 是否为管理员
+     */
+    boolean isAdmin(User user);
+
+    /**
+     * 获取当前登录用户信息
+     *
+     * @return 当前登录用户信息封装对象
      */
     LoginUserVO getLoginUserVO(User user);
 
     /**
-     * 获取脱敏的用户信息
+     * 获取用户信息封装对象
      *
-     * @param user
-     * @return
+     * @param user 用户对象
+     * @return 用户信息封装对象
      */
     UserVO getUserVO(User user);
 
     /**
-     * 获取脱敏的用户信息
+     * 分页获取封装的用户信息
      *
-     * @param userList
-     * @return
+     * @param userPage 分页用户对象
+     * @return 分页封装的用户信息
      */
-    List<UserVO> getUserVO(List<User> userList);
-
-
-    /**
-     * 从 Session 中获取用户登录状态
-     *
-     * @param request
-     * @return
-     */
-    User getUserLoginState(HttpServletRequest request);
+    Page<UserVO> pageUserVO(Page<User> userPage);
 
     /**
      * 获取查询条件
      *
-     * @param userQueryRequest
-     * @return
+     * @param userQueryRequest 查询参数
      */
     LambdaQueryWrapper<User> getLambdaQueryWrapper(UserQueryRequest userQueryRequest);
-
-    /**
-     * 将用户登录状态设置到 Session 中
-     *
-     * @param request
-     * @param user
-     */
-    void setUserLoginState(HttpServletRequest request, User user);
 }

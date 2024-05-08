@@ -1,9 +1,10 @@
 package cn.cutepikachu.datawisemaster.model.dto.postfavour;
 
-import jakarta.validation.constraints.NotNull;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.io.Serial;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
@@ -13,14 +14,11 @@ import java.io.Serializable;
  * @version 1.0
  */
 @Data
+@ApiModel(description = "帖子收藏请求")
 public class PostFavourAddRequest implements Serializable {
-
-    /**
-     * 帖子 id
-     */
+    private static final long serialVersionUID = 1L;
+    @ApiModelProperty("帖子id")
     @NotNull
     private Long postId;
 
-    @Serial
-    private static final long serialVersionUID = 1L;
 }

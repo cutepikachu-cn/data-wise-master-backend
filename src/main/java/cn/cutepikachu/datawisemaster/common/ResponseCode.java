@@ -3,13 +3,18 @@ package cn.cutepikachu.datawisemaster.common;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.io.Serializable;
+
 /**
+ * 响应码枚举类
+ *
  * @author 笨蛋皮卡丘
  * @version 1.0
  */
 @AllArgsConstructor
 @Getter
-public enum ResponseCode {
+public enum ResponseCode implements Serializable {
+
     SUCCESS(0, "成功"),
 
     // 客户端异常
@@ -23,13 +28,16 @@ public enum ResponseCode {
     SYSTEM_ERROR(50000, "系统内部异常"),
     OPERATION_ERROR(50001, "操作失败");
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * 状态码
      */
-    private final int code;
+    private final Integer code;
 
     /**
      * 信息
      */
     private final String message;
+
 }

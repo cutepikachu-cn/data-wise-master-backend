@@ -1,9 +1,11 @@
 package cn.cutepikachu.datawisemaster.model.dto.file;
 
-import jakarta.validation.constraints.NotNull;
+import cn.cutepikachu.datawisemaster.model.enums.FileUploadBizEnum;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.io.Serial;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 /**
@@ -13,14 +15,11 @@ import java.io.Serializable;
  * @version 1.0
  */
 @Data
+@ApiModel(description = "文件上传请求")
 public class UploadFileRequest implements Serializable {
-    /**
-     * 业务
-     */
-    @NotNull
-    private String biz;
 
-    @Serial
     private static final long serialVersionUID = 1L;
-
+    @ApiModelProperty("文件上传业务类型")
+    @NotNull
+    private FileUploadBizEnum biz;
 }

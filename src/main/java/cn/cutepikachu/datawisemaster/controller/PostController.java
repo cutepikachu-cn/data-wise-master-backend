@@ -14,18 +14,17 @@ import cn.cutepikachu.datawisemaster.model.enums.UserRole;
 import cn.cutepikachu.datawisemaster.model.vo.PostVO;
 import cn.cutepikachu.datawisemaster.service.IPostService;
 import cn.cutepikachu.datawisemaster.service.IUserService;
-import cn.cutepikachu.datawisemaster.util.ResultUtils;
-import cn.cutepikachu.datawisemaster.util.ThrowUtils;
+import cn.cutepikachu.datawisemaster.util.ResponseUtil;
+import cn.cutepikachu.datawisemaster.util.ThrowUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -40,165 +39,137 @@ import java.util.List;
 @RestController
 @RequestMapping("/post")
 public class PostController {
+
     @Resource
     private IPostService postService;
+
     @Resource
     private IUserService userService;
 
     /**
      * 创建
-     *
-     * @param postAddRequest
-     * @param request
-     * @return
      */
     @PostMapping("/add")
-    public BaseResponse<Long> addPost(@RequestBody @Valid PostAddRequest postAddRequest, HttpServletRequest request) {
+    public BaseResponse<Long> addPost(@RequestBody @Valid PostAddRequest postAddRequest) {
         Post post = new Post();
         BeanUtil.copyProperties(postAddRequest, post);
         List<String> tags = postAddRequest.getTags();
         post.setTags(JSONUtil.toJsonStr(tags));
-        User loginUser = userService.getLoginUser(request);
+        User loginUser = userService.getLoginUser();
         post.setUserId(loginUser.getId());
         boolean result = postService.save(post);
-        ThrowUtils.throwIf(!result, ResponseCode.OPERATION_ERROR);
-        long newPostId = post.getId();
-        return ResultUtils.success(newPostId);
+        ThrowUtil.throwIf(!result, ResponseCode.OPERATION_ERROR);
+        Long newPostId = post.getId();
+        return ResponseUtil.success(newPostId);
     }
 
     /**
      * 删除
-     *
-     * @param deleteRequest
-     * @param request
-     * @return
      */
     @PostMapping("/delete")
-    public BaseResponse<Boolean> deletePost(@RequestBody @Valid DeleteRequest deleteRequest, HttpServletRequest request) {
-        long id = deleteRequest.getId();
+    public BaseResponse<?> deletePost(@RequestBody @Valid DeleteRequest deleteRequest) {
+        Long id = deleteRequest.getId();
         // 判断是否存在
         Post oldPost = postService.getById(id);
-        ThrowUtils.throwIf(oldPost == null, ResponseCode.NOT_FOUND_ERROR);
+        ThrowUtil.throwIf(oldPost == null, ResponseCode.NOT_FOUND_ERROR);
         // 仅本人或管理员可删除
-        User user = userService.getLoginUser(request);
-        ThrowUtils.throwIf(!oldPost.getUserId().equals(user.getId()) && !userService.isAdmin(request), ResponseCode.NO_AUTH_ERROR);
+        User user = userService.getLoginUser();
+        ThrowUtil.throwIf(!oldPost.getUserId().equals(user.getId()) && !userService.isAdmin(user), ResponseCode.NO_AUTH_ERROR);
         boolean result = postService.removeById(id);
-        ThrowUtils.throwIf(!result, ResponseCode.OPERATION_ERROR, "删除帖子失败");
-        return ResultUtils.success(true);
+        ThrowUtil.throwIf(!result, ResponseCode.OPERATION_ERROR, "删除帖子失败");
+        return ResponseUtil.success();
     }
 
     /**
      * 更新（仅管理员）
-     *
-     * @param postUpdateRequest
-     * @return
      */
     @PostMapping("/update")
     @AuthCheck(mustRole = UserRole.ADMIN)
-    public BaseResponse<Boolean> updatePost(@RequestBody @Valid PostUpdateRequest postUpdateRequest) {
+    public BaseResponse<?> updatePost(@RequestBody @Valid PostUpdateRequest postUpdateRequest) {
         Post post = new Post();
         BeanUtil.copyProperties(postUpdateRequest, post);
         List<String> tags = postUpdateRequest.getTags();
         post.setTags(JSONUtil.toJsonStr(tags));
-        long id = postUpdateRequest.getId();
+        Long id = postUpdateRequest.getId();
         // 判断是否存在
         Post oldPost = postService.getById(id);
-        ThrowUtils.throwIf(oldPost == null, ResponseCode.NOT_FOUND_ERROR);
+        ThrowUtil.throwIf(oldPost == null, ResponseCode.NOT_FOUND_ERROR);
         boolean result = postService.updateById(post);
-        return ResultUtils.success(result);
+        ThrowUtil.throwIf(!result, ResponseCode.OPERATION_ERROR, "更新帖子失败");
+        return ResponseUtil.success();
     }
 
     /**
      * 根据 id 获取
-     *
-     * @param id
-     * @return
      */
     @GetMapping("/get/vo")
-    public BaseResponse<PostVO> getPostVOById(@RequestParam long id, HttpServletRequest request) {
+    public BaseResponse<PostVO> getPostVOById(@RequestParam long id) {
         Post post = postService.getById(id);
-        ThrowUtils.throwIf(post == null, ResponseCode.NOT_FOUND_ERROR, "帖子不存在");
-        PostVO postVO = postService.getPostVO(post, request);
-        return ResultUtils.success(postVO);
+        ThrowUtil.throwIf(post == null, ResponseCode.NOT_FOUND_ERROR, "帖子不存在");
+        PostVO postVO = postService.getPostVO(post);
+        return ResponseUtil.success(postVO);
     }
 
     /**
      * 分页获取列表（仅管理员）
-     *
-     * @param postQueryRequest
-     * @return
      */
     @PostMapping("/page")
     @AuthCheck(mustRole = UserRole.ADMIN)
     public BaseResponse<Page<Post>> pagePost(@RequestBody @Valid PostQueryRequest postQueryRequest) {
-        long current = postQueryRequest.getCurrent();
-        long size = postQueryRequest.getPageSize();
-        Page<Post> postPage = postService.page(new Page<>(current, size),
-                postService.getLambdaQueryWrapper(postQueryRequest));
-        return ResultUtils.success(postPage);
+        Integer current = postQueryRequest.getCurrent();
+        Integer size = postQueryRequest.getPageSize();
+        LambdaQueryWrapper<Post> lambdaQueryWrapper = postService.getLambdaQueryWrapper(postQueryRequest);
+        Page<Post> postPage = postService.page(new Page<>(current, size), lambdaQueryWrapper);
+        return ResponseUtil.success(postPage);
     }
 
     /**
      * 分页获取列表（封装类）
-     *
-     * @param postQueryRequest
-     * @param request
-     * @return
      */
     @PostMapping("/page/vo")
-    public BaseResponse<Page<PostVO>> pagePostVO(@RequestBody PostQueryRequest postQueryRequest,
-                                                 HttpServletRequest request) {
-        long current = postQueryRequest.getCurrent();
-        long size = postQueryRequest.getPageSize();
+    public BaseResponse<Page<PostVO>> pagePostVO(@RequestBody @Valid PostQueryRequest postQueryRequest) {
+        Integer current = postQueryRequest.getCurrent();
+        Integer size = postQueryRequest.getPageSize();
         LambdaQueryWrapper<Post> lambdaQueryWrapper = postService.getLambdaQueryWrapper(postQueryRequest);
         Page<Post> postPage = postService.page(new Page<>(current, size), lambdaQueryWrapper);
-        Page<PostVO> postVOPage = postService.getPostVOPage(postPage, request);
-        return ResultUtils.success(postVOPage);
+        Page<PostVO> postVOPage = postService.getPostVOPage(postPage);
+        return ResponseUtil.success(postVOPage);
     }
 
     /**
      * 分页获取当前用户创建的资源列表
-     *
-     * @param postQueryRequest
-     * @param request
-     * @return
      */
     @PostMapping("/page/vo/self")
-    public BaseResponse<Page<PostVO>> pageSelfPostVO(@RequestBody @Valid PostQueryRequest postQueryRequest,
-                                                     HttpServletRequest request) {
-        User loginUser = userService.getLoginUser(request);
+    public BaseResponse<Page<PostVO>> pageSelfPostVO(@RequestBody @Valid PostQueryRequest postQueryRequest) {
+        User loginUser = userService.getLoginUser();
         postQueryRequest.setUserId(loginUser.getId());
-        long current = postQueryRequest.getCurrent();
-        long size = postQueryRequest.getPageSize();
+        Integer current = postQueryRequest.getCurrent();
+        Integer size = postQueryRequest.getPageSize();
         LambdaQueryWrapper<Post> lambdaQueryWrapper = postService.getLambdaQueryWrapper(postQueryRequest);
         Page<Post> postPage = postService.page(new Page<>(current, size), lambdaQueryWrapper);
-        Page<PostVO> postVOPage = postService.getPostVOPage(postPage, request);
-        return ResultUtils.success(postVOPage);
+        Page<PostVO> postVOPage = postService.getPostVOPage(postPage);
+        return ResponseUtil.success(postVOPage);
     }
 
     /**
      * 编辑帖子（用户）
-     *
-     * @param postEditRequest
-     * @param request
-     * @return
      */
     @PostMapping("/edit")
-    public BaseResponse<Boolean> editPost(@RequestBody @Valid PostEditRequest postEditRequest, HttpServletRequest request) {
+    public BaseResponse<?> editPost(@RequestBody @Valid PostEditRequest postEditRequest) {
         Post post = new Post();
         BeanUtil.copyProperties(postEditRequest, post);
         List<String> tags = postEditRequest.getTags();
         post.setTags(JSONUtil.toJsonStr(tags));
-        User loginUser = userService.getLoginUser(request);
-        long id = postEditRequest.getId();
+        User loginUser = userService.getLoginUser();
+        Long id = postEditRequest.getId();
         // 判断是否存在
         Post oldPost = postService.getById(id);
-        ThrowUtils.throwIf(oldPost == null, ResponseCode.NOT_FOUND_ERROR);
+        ThrowUtil.throwIf(oldPost == null, ResponseCode.NOT_FOUND_ERROR);
         // 仅本人或管理员可编辑
-        ThrowUtils.throwIf(!oldPost.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser), ResponseCode.NO_AUTH_ERROR);
+        ThrowUtil.throwIf(!oldPost.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser), ResponseCode.NO_AUTH_ERROR);
         boolean result = postService.updateById(post);
-        ThrowUtils.throwIf(!result, ResponseCode.OPERATION_ERROR);
-        return ResultUtils.success(true);
+        ThrowUtil.throwIf(!result, ResponseCode.OPERATION_ERROR, "更新帖子信息失败");
+        return ResponseUtil.success();
     }
 
 }

@@ -2,9 +2,7 @@ package cn.cutepikachu.datawisemaster.exception;
 
 import cn.cutepikachu.datawisemaster.common.BaseResponse;
 import cn.cutepikachu.datawisemaster.common.ResponseCode;
-import cn.cutepikachu.datawisemaster.util.ResultUtils;
-import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.ValidationException;
+import cn.cutepikachu.datawisemaster.util.ResponseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
@@ -18,6 +16,9 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
+
+import javax.validation.ConstraintViolationException;
+import javax.validation.ValidationException;
 
 /**
  * 全局异常处理器
@@ -36,7 +37,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({HttpMessageNotReadableException.class})
     public BaseResponse<?> httpMessageNotReadableExceptionHandler(HttpMessageNotReadableException e) {
         log.error("[HttpMessageNotReadableException] ", e);
-        return ResultUtils.error(ResponseCode.PARAMS_ERROR, "参数格式错误");
+        return ResponseUtil.error(ResponseCode.PARAMS_ERROR, "参数错误");
     }
 
     /**
@@ -46,7 +47,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({HttpMediaTypeNotSupportedException.class})
     public BaseResponse<?> httpMediaTypeNotSupportedExceptionHandler(HttpMediaTypeNotSupportedException e) {
         log.error("[HttpMediaTypeNotSupportedException] ", e);
-        return ResultUtils.error(ResponseCode.PARAMS_ERROR, "参数格式错误");
+        return ResponseUtil.error(ResponseCode.PARAMS_ERROR, "参数格式错误");
     }
 
     /**
@@ -58,7 +59,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({MissingServletRequestParameterException.class})
     public BaseResponse<?> missingServletRequestParameterExceptionHandler(MissingServletRequestParameterException e) {
         log.error("[MissingServletRequestParameterException] ", e);
-        return ResultUtils.error(ResponseCode.PARAMS_ERROR, "请求参数缺失");
+        return ResponseUtil.error(ResponseCode.PARAMS_ERROR, "请求参数缺失");
     }
 
     /**
@@ -69,7 +70,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({MethodArgumentTypeMismatchException.class})
     public BaseResponse<?> methodArgumentTypeMismatchExceptionHandler(MethodArgumentTypeMismatchException e) {
         log.error("[MethodArgumentTypeMismatchException] ", e);
-        return ResultUtils.error(ResponseCode.PARAMS_ERROR, "请求参数类型错误");
+        return ResponseUtil.error(ResponseCode.PARAMS_ERROR, "请求参数类型错误");
     }
 
     /**
@@ -79,7 +80,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({MethodArgumentNotValidException.class})
     public BaseResponse<?> methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException e) {
         log.error("[MethodArgumentNotValidException] ", e);
-        return ResultUtils.error(ResponseCode.PARAMS_ERROR);
+        return ResponseUtil.error(ResponseCode.PARAMS_ERROR);
     }
 
     /**
@@ -89,7 +90,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({BindException.class})
     public BaseResponse<?> bindExceptionHandler(BindException e) {
         log.error("[BindException] ", e);
-        return ResultUtils.error(ResponseCode.PARAMS_ERROR);
+        return ResponseUtil.error(ResponseCode.PARAMS_ERROR);
     }
 
     /**
@@ -99,7 +100,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({ConstraintViolationException.class})
     public BaseResponse<?> constraintViolationExceptionHandler(ConstraintViolationException e) {
         log.error("[ConstraintViolationException] ", e);
-        return ResultUtils.error(ResponseCode.PARAMS_ERROR);
+        return ResponseUtil.error(ResponseCode.PARAMS_ERROR);
     }
 
     /**
@@ -108,7 +109,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({ValidationException.class})
     public BaseResponse<?> validationExceptionHandler(ValidationException e) {
         log.error("[ValidationException] ", e);
-        return ResultUtils.error(ResponseCode.PARAMS_ERROR);
+        return ResponseUtil.error(ResponseCode.PARAMS_ERROR);
     }
 
     /**
@@ -117,7 +118,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({MultipartException.class})
     public BaseResponse<?> multipartExceptionHandler(MultipartException e) {
         log.error("[MultipartException] ", e);
-        return ResultUtils.error(ResponseCode.PARAMS_ERROR, "文件上传参数异常");
+        return ResponseUtil.error(ResponseCode.PARAMS_ERROR, "文件上传参数异常");
     }
 
     /**
@@ -126,7 +127,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({MissingServletRequestPartException.class})
     public BaseResponse<?> missingServletRequestPartExceptionHandler(MissingServletRequestPartException e) {
         log.error("[MissingServletRequestPartException] ", e);
-        return ResultUtils.error(ResponseCode.PARAMS_ERROR, "文件上传参数异常");
+        return ResponseUtil.error(ResponseCode.PARAMS_ERROR, "文件上传参数异常");
     }
 
     /**
@@ -140,7 +141,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({NoHandlerFoundException.class})
     public BaseResponse<?> noHandlerFoundExceptionHandler(NoHandlerFoundException e) {
         log.error("[NoHandlerFoundException] ", e);
-        return ResultUtils.error(ResponseCode.NOT_FOUND_ERROR, "请求地址不存在");
+        return ResponseUtil.error(ResponseCode.NOT_FOUND_ERROR, "请求地址不存在");
     }
 
     /**
@@ -152,19 +153,20 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({HttpRequestMethodNotSupportedException.class})
     public BaseResponse<?> httpRequestMethodNotSupportedExceptionHandler(HttpRequestMethodNotSupportedException e) {
         log.error("[HttpRequestMethodNotSupportedException] ", e);
-        return ResultUtils.error(ResponseCode.METHOD_NOT_ALLOW);
+        return ResponseUtil.error(ResponseCode.METHOD_NOT_ALLOW);
     }
 
 
     @ExceptionHandler({BusinessException.class})
     public BaseResponse<?> businessExceptionHandler(BusinessException e) {
         log.error("[BusinessException] ", e);
-        return ResultUtils.error(e.getCode(), e.getMessage());
+        return ResponseUtil.error(e.getCode(), e.getMessage());
     }
 
     @ExceptionHandler({RuntimeException.class})
     public BaseResponse<?> runtimeExceptionHandler(RuntimeException e) {
         log.error("[RuntimeException] ", e);
-        return ResultUtils.error(ResponseCode.SYSTEM_ERROR);
+        return ResponseUtil.error(ResponseCode.SYSTEM_ERROR);
     }
+
 }

@@ -6,7 +6,6 @@ import cn.cutepikachu.datawisemaster.model.vo.PostVO;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * <p>
@@ -17,30 +16,26 @@ import jakarta.servlet.http.HttpServletRequest;
  * @since 2024-05-05 16:39:35
  */
 public interface IPostService extends IService<Post> {
-
     /**
      * 获取查询条件
      *
-     * @param postQueryRequest
-     * @return
+     * @param postQueryRequest 查询请求参数
      */
     LambdaQueryWrapper<Post> getLambdaQueryWrapper(PostQueryRequest postQueryRequest);
 
     /**
-     * 获取帖子封装
+     * 获取封装
      *
-     * @param post
-     * @param request
-     * @return
+     * @param post 对象
+     * @return 封装对象
      */
-    PostVO getPostVO(Post post, HttpServletRequest request);
+    PostVO getPostVO(Post post);
 
     /**
-     * 分页获取帖子封装
+     * 分页获取封装
      *
-     * @param postPage
-     * @param request
-     * @return
+     * @param postPage 分页对象
+     * @return 分页封装都西昂
      */
-    Page<PostVO> getPostVOPage(Page<Post> postPage, HttpServletRequest request);
+    Page<PostVO> getPostVOPage(Page<Post> postPage);
 }

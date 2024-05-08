@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 
 /**
  * <p>
- * 用户表 Mapper 接口
+ * 用户 Mapper 接口
  * </p>
  *
  * @author 笨蛋皮卡丘

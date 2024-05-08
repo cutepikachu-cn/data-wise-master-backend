@@ -8,13 +8,15 @@ import cn.cutepikachu.datawisemaster.model.entity.PostFavour;
 import cn.cutepikachu.datawisemaster.model.entity.User;
 import cn.cutepikachu.datawisemaster.service.IPostFavourService;
 import cn.cutepikachu.datawisemaster.service.IPostService;
-import cn.cutepikachu.datawisemaster.util.ThrowUtils;
+import cn.cutepikachu.datawisemaster.service.IUserService;
+import cn.cutepikachu.datawisemaster.util.ThrowUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import jakarta.annotation.Resource;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
 
 /**
  * <p>
@@ -30,20 +32,17 @@ public class PostFavourServiceImpl extends ServiceImpl<PostFavourMapper, PostFav
     @Resource
     private IPostService postService;
 
-    /**
-     * 帖子收藏
-     *
-     * @param postId
-     * @param loginUser
-     * @return
-     */
+    @Resource
+    private IUserService userService;
+
     @Override
-    public int doPostFavour(long postId, User loginUser) {
+    public boolean doPostFavour(Long postId) {
         // 判断是否存在
         Post post = postService.getById(postId);
-        ThrowUtils.throwIf(post == null, ResponseCode.NOT_FOUND_ERROR);
+        ThrowUtil.throwIf(post == null, ResponseCode.NOT_FOUND_ERROR);
         // 是否已帖子收藏
-        long userId = loginUser.getId();
+        User loginUser = userService.getLoginUser();
+        Long userId = loginUser.getId();
         // 每个用户串行帖子收藏
         // 锁必须要包裹住事务方法
         IPostFavourService postFavourService = (IPostFavourService) AopContext.currentProxy();
@@ -53,19 +52,12 @@ public class PostFavourServiceImpl extends ServiceImpl<PostFavourMapper, PostFav
     }
 
     @Override
-    public Page<Post> pageFavourPost(long current, long pageSize, long userId) {
+    public Page<Post> pageFavourPost(Integer current, Integer pageSize, Long userId) {
         return baseMapper.listFavourPostByPage(new Page<>(current, pageSize), userId);
     }
 
-    /**
-     * 封装了事务的方法
-     *
-     * @param userId
-     * @param postId
-     * @return
-     */
     @Override
-    public int doPostFavourInner(long userId, long postId) {
+    public boolean doPostFavourInner(Long userId, Long postId) {
         PostFavour postFavour = new PostFavour();
         postFavour.setUserId(userId);
         postFavour.setPostId(postId);
@@ -82,7 +74,7 @@ public class PostFavourServiceImpl extends ServiceImpl<PostFavourMapper, PostFav
                         .gt(Post::getFavourNum, 0)
                         .setSql("favour_num = favour_num - 1")
                         .update();
-                return result ? -1 : 0;
+                return result;
             } else {
                 throw new BusinessException(ResponseCode.SYSTEM_ERROR);
             }
@@ -95,12 +87,13 @@ public class PostFavourServiceImpl extends ServiceImpl<PostFavourMapper, PostFav
                         .eq(Post::getId, postId)
                         .setSql("favour_num = favour_num + 1")
                         .update();
-                return result ? 1 : 0;
+                return result;
             } else {
                 throw new BusinessException(ResponseCode.SYSTEM_ERROR);
             }
         }
     }
+
 }
 
 

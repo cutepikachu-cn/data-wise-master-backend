@@ -1,12 +1,9 @@
 package cn.cutepikachu.datawisemaster.model.enums;
 
-import cn.hutool.core.util.ObjectUtil;
+import com.baomidou.mybatisplus.annotation.EnumValue;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author 笨蛋皮卡丘
@@ -14,38 +11,13 @@ import java.util.stream.Collectors;
  */
 @Getter
 @AllArgsConstructor
-public enum UserRole {
+public enum UserRole implements BaseEnum<String> {
     USER("用户", "user"),
     ADMIN("管理员", "admin"),
     BAN("封禁", "ban");
 
     private final String text;
+    @EnumValue
+    @JsonValue
     private final String value;
-
-    /**
-     * 获取值列表
-     *
-     * @return
-     */
-    public static List<String> getValues() {
-        return Arrays.stream(values()).map(item -> item.value).collect(Collectors.toList());
-    }
-
-    /**
-     * 根据 value 获取枚举
-     *
-     * @param value
-     * @return
-     */
-    public static UserRole getEnumByValue(String value) {
-        if (ObjectUtil.isEmpty(value)) {
-            return null;
-        }
-        for (UserRole anEnum : UserRole.values()) {
-            if (anEnum.value.equals(value.toLowerCase())) {
-                return anEnum;
-            }
-        }
-        return null;
-    }
 }

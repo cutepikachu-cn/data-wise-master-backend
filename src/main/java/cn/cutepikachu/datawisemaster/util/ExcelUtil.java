@@ -11,12 +11,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author 笨蛋皮卡丘
  * @version 1.0
  */
-public class ExcelUtils {
+public class ExcelUtil {
     public static String excelToCSV(MultipartFile file) {
         // File dataFile;
         // try {
@@ -41,12 +42,12 @@ public class ExcelUtils {
         StringBuilder dataStr = new StringBuilder();
         // 表头
         Map<Integer, String> head = rows.get(0);
-        String headRowStr = StrUtil.join(",", head.values().stream().filter(ObjectUtil::isNotEmpty).toList());
+        String headRowStr = StrUtil.join(",", head.values().stream().filter(ObjectUtil::isNotEmpty).collect(Collectors.toList()));
         dataStr.append(headRowStr).append('\n');
         // 数据
         for (int i = 1; i < rows.size(); i++) {
             Map<Integer, String> row = rows.get(i);
-            String rowStr = StrUtil.join(",", row.values().stream().filter(ObjectUtil::isNotEmpty).toList());
+            String rowStr = StrUtil.join(",", row.values().stream().filter(ObjectUtil::isNotEmpty).collect(Collectors.toList()));
             dataStr.append(rowStr).append('\n');
         }
         // System.out.println(dataStr);

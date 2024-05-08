@@ -6,7 +6,7 @@ import cn.cutepikachu.datawisemaster.model.entity.Chart;
 import cn.cutepikachu.datawisemaster.model.enums.SortOrder;
 import cn.cutepikachu.datawisemaster.model.vo.ChartVO;
 import cn.cutepikachu.datawisemaster.service.IChartService;
-import cn.cutepikachu.datawisemaster.util.SqlUtils;
+import cn.cutepikachu.datawisemaster.util.SqlUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -15,6 +15,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -38,18 +39,22 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart> implements
         String name = chartQueryRequest.getName();
         String chartType = chartQueryRequest.getChartType();
         String sortField = chartQueryRequest.getSortField();
-        String sortOrder = chartQueryRequest.getSortOrder();
+        SortOrder sortOrder = chartQueryRequest.getSortOrder();
 
         lambdaQueryWrapper.eq(ObjUtil.isNotEmpty(id), Chart::getId, id);
         lambdaQueryWrapper.like(StrUtil.isNotEmpty(goal), Chart::getGoal, goal);
         lambdaQueryWrapper.like(StrUtil.isNotEmpty(name), Chart::getName, name);
         lambdaQueryWrapper.eq(StrUtil.isNotEmpty(chartType), Chart::getChartType, chartType);
 
-        if (SqlUtils.validSortField(sortField)) {
-            boolean isAsc = sortOrder.equals(SortOrder.SORT_ORDER_ASC.getValue());
+        if (SqlUtil.validSortField(sortField)) {
+            boolean isAsc = sortOrder == SortOrder.SORT_ORDER_ASC;
             switch (sortField.toLowerCase()) {
-                case "createtime" -> lambdaQueryWrapper.orderBy(true, isAsc, Chart::getCreateTime);
-                case "charttype" -> lambdaQueryWrapper.orderBy(true, isAsc, Chart::getChartType);
+                case "createtime":
+                    lambdaQueryWrapper.orderBy(true, isAsc, Chart::getCreateTime);
+                    break;
+                case "charttype":
+                    lambdaQueryWrapper.orderBy(true, isAsc, Chart::getChartType);
+                    break;
             }
         }
         return lambdaQueryWrapper;
@@ -67,7 +72,7 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart> implements
         if (chartList.isEmpty()) {
             return chartVOPage;
         }
-        List<ChartVO> chartVOList = chartList.stream().map(chart -> chart.toVO(ChartVO.class)).toList();
+        List<ChartVO> chartVOList = chartList.stream().map(chart -> chart.toVO(ChartVO.class)).collect(Collectors.toList());
         chartVOPage.setRecords(chartVOList);
         return chartVOPage;
     }

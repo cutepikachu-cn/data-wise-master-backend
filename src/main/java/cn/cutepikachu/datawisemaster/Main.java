@@ -6,10 +6,10 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
 @EnableAspectJAutoProxy(proxyTargetClass = true, exposeProxy = true)
 @SpringBootApplication
-public class DataWiseMasterApplication {
+public class Main {
 
     public static void main(String[] args) {
-        SpringApplication.run(DataWiseMasterApplication.class, args);
+        SpringApplication.run(Main.class, args);
     }
 
 }

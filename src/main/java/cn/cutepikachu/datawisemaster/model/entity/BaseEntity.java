@@ -4,7 +4,6 @@ import cn.cutepikachu.datawisemaster.model.vo.BaseVO;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ReflectUtil;
 
-import java.io.Serial;
 import java.io.Serializable;
 
 /**
@@ -13,7 +12,6 @@ import java.io.Serializable;
  */
 public abstract class BaseEntity<E extends BaseEntity<E, VO>, VO extends BaseVO<E, VO>> implements Serializable {
 
-    @Serial
     private static final long serialVersionUID = 1L;
 
     public VO toVO(Class<VO> voClass) {
@@ -21,4 +19,5 @@ public abstract class BaseEntity<E extends BaseEntity<E, VO>, VO extends BaseVO<
         BeanUtil.copyProperties(this, vo);
         return vo;
     }
+
 }

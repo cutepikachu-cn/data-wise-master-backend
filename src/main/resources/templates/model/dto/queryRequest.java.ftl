@@ -1,6 +1,4 @@
-<#assign entityUnCapFirst=entity?uncap_first>
-<#assign vo>${entity}VO</#assign>
-package ${package.Parent}.model.vo;
+package ${package.Parent}.model.dto;
 
 <#list table.importPackages as pkg>
     <#if !pkg?contains("mybatisplus") && !pkg?contains("BaseEntity")>
@@ -13,18 +11,15 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 </#if>
-import ${package.Entity}.${entity};
+import ${projectPackage}.common.PageRequest;
 <#if entityLombokModel>
 import lombok.Data;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.EqualsAndHashCode;
 </#if>
-import ${projectPackage}.model.vo.BaseVO;
 
 /**
  * <p>
- * ${table.comment!} VO
+ * ${table.comment!} 查询DTO
  * </p>
  *
  * @author ${author}
@@ -32,24 +27,16 @@ import ${projectPackage}.model.vo.BaseVO;
  */
 <#if entityLombokModel>
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
     <#if superEntityClass?? || activeRecord>
 @EqualsAndHashCode(callSuper = true)
     </#if>
 </#if>
 <#if springdoc>
-@Schema(name = "${vo}", description = "${table.comment!}")
+@Schema(name = "${entity}QueryRequest", description = "${table.comment!} 查询请求")
 <#elseif swagger>
-@ApiModel(value = "${vo}", description = "${table.comment!}")
+@ApiModel(value = "${entity}QueryRequest", description = "${table.comment!} 查询请求")
 </#if>
-<#if superEntityClass??>
-public class ${vo} extends BaseVO<${entity}, ${vo}><#if entitySerialVersionUID> implements Serializable</#if> {
-<#elseif entitySerialVersionUID>
-public class ${vo} implements Serializable {
-<#else>
-public class ${vo} {
-</#if>
+public class ${entity}QueryRequest extends PageRequest<#if entitySerialVersionUID> implements Serializable</#if> {
 <#if entitySerialVersionUID>
     private static final long serialVersionUID = 1L;
 </#if>
@@ -82,7 +69,7 @@ public class ${vo} {
     }
 
     <#if chainModel>
-    public ${vo} set${field.capitalName}(${field.propertyType} ${field.propertyName}) {
+    public ${entity}QueryRequest set${field.capitalName}(${field.propertyType} ${field.propertyName}) {
     <#else>
     public void set${field.capitalName}(${field.propertyType} ${field.propertyName}) {
     </#if>

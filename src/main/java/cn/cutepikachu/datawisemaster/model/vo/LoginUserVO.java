@@ -1,8 +1,9 @@
 package cn.cutepikachu.datawisemaster.model.vo;
 
+import cn.cutepikachu.datawisemaster.model.enums.UserRole;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -12,30 +13,19 @@ import java.time.LocalDateTime;
  */
 @Data
 public class LoginUserVO implements Serializable {
-    @Serial
     private static final long serialVersionUID = 1L;
-    /**
-     * id
-     */
+    @ApiModelProperty("id")
     private Long id;
-    /**
-     * 用户昵称
-     */
+    @ApiModelProperty("用户账户")
+    private String userAccount;
+    @ApiModelProperty("用户昵称")
     private String userNickname;
-    /**
-     * 用户头像
-     */
+    @ApiModelProperty("用户头像")
     private String userAvatar;
-    /**
-     * 用户简介
-     */
+    @ApiModelProperty("用户简介")
     private String userProfile;
-    /**
-     * 用户角色：user/admin
-     */
-    private String userRole;
-    /**
-     * 创建时间
-     */
+    @ApiModelProperty("用户角色：user/admin/ban")
+    private UserRole userRole;
+    @ApiModelProperty("创建时间")
     private LocalDateTime createTime;
 }

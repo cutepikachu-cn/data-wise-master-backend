@@ -2,19 +2,21 @@ package cn.cutepikachu.datawisemaster.controller;
 
 
 import cn.cutepikachu.datawisemaster.common.BaseResponse;
+import cn.cutepikachu.datawisemaster.common.ResponseCode;
 import cn.cutepikachu.datawisemaster.model.dto.postthumb.PostThumbAddRequest;
 import cn.cutepikachu.datawisemaster.model.entity.User;
 import cn.cutepikachu.datawisemaster.service.IPostThumbService;
 import cn.cutepikachu.datawisemaster.service.IUserService;
-import cn.cutepikachu.datawisemaster.util.ResultUtils;
-import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
+import cn.cutepikachu.datawisemaster.util.ResponseUtil;
+import cn.cutepikachu.datawisemaster.util.ThrowUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
+import javax.validation.Valid;
 
 /**
  * <p>
@@ -28,26 +30,24 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/post_thumb")
 public class PostThumbController {
+
     @Resource
     private IPostThumbService postThumbService;
+
     @Resource
     private IUserService userService;
 
     /**
      * 点赞 / 取消点赞
-     *
-     * @param postThumbAddRequest
-     * @param request
-     * @return
      */
     @PostMapping("/")
-    public BaseResponse<Integer> doThumb(@RequestBody @Valid PostThumbAddRequest postThumbAddRequest,
-                                         HttpServletRequest request) {
+    public BaseResponse<?> doThumb(@RequestBody @Valid PostThumbAddRequest postThumbAddRequest) {
         // 登录才能点赞
-        final User loginUser = userService.getLoginUser(request);
-        long postId = postThumbAddRequest.getPostId();
-        int result = postThumbService.doPostThumb(postId, loginUser);
-        return ResultUtils.success(result);
+        final User loginUser = userService.getLoginUser();
+        Long postId = postThumbAddRequest.getPostId();
+        boolean result = postThumbService.doPostThumb(postId);
+        ThrowUtil.throwIf(!result, ResponseCode.OPERATION_ERROR);
+        return ResponseUtil.success();
     }
 
 }
