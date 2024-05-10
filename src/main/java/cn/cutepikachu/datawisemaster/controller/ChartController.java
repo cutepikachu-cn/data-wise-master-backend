@@ -21,12 +21,15 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -50,6 +53,9 @@ public class ChartController {
     @Resource
     private AiManager aiManager;
 
+    @Resource
+    private RedissonClient redissonClient;
+
     /**
      * 生成图表请求
      *
@@ -57,11 +63,21 @@ public class ChartController {
      * @param chartGenRequest
      */
     @PostMapping("/gen")
-    public BaseResponse<ChartVO> genChart(@RequestPart MultipartFile dataFile,
+    public BaseResponse<?> genChart(@RequestPart MultipartFile dataFile,
                                     @Valid ChartGenRequest chartGenRequest) {
+        User loginUser = userService.getLoginUser();
+        RLock lock = redissonClient.getLock("chart:gen" + loginUser.getId());
+        // 30s 内最多生成一次
+        try {
+            if (!lock.tryLock(-1, 30, TimeUnit.SECONDS)) {
+                return ResponseUtil.error(ResponseCode.OPERATION_ERROR, "操作过于频繁");
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
         Chart chart = new Chart();
         BeanUtil.copyProperties(chartGenRequest, chart);
-        User loginUser = userService.getLoginUser();
         chart.setUserId(loginUser.getId());
         String data = ExcelUtil.excelToCSV(dataFile);
         chart.setData(data.trim());
