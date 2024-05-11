@@ -21,6 +21,8 @@ public enum ResponseCode implements Serializable {
     PARAMS_ERROR(41500, "请求参数错误"),
     NOT_LOGIN_ERROR(40100, "未登录"),
     NO_AUTH_ERROR(40300, "无权限"),
+    // 请求过于频繁
+    REQUEST_TOO_FREQUENT(42900, "请求过于频繁"),
     NOT_FOUND_ERROR(40400, "请求数据不存在"),
     METHOD_NOT_ALLOW(40500, "请求方法错误"),
 
