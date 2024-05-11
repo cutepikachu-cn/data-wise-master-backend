@@ -4,6 +4,7 @@ import cn.cutepikachu.datawisemaster.annotation.AuthCheck;
 import cn.cutepikachu.datawisemaster.common.BaseResponse;
 import cn.cutepikachu.datawisemaster.common.DeleteRequest;
 import cn.cutepikachu.datawisemaster.common.ResponseCode;
+import cn.cutepikachu.datawisemaster.exception.BusinessException;
 import cn.cutepikachu.datawisemaster.manager.AiManager;
 import cn.cutepikachu.datawisemaster.model.dto.chart.ChartGenRequest;
 import cn.cutepikachu.datawisemaster.model.dto.chart.ChartQueryRequest;
@@ -17,7 +18,9 @@ import cn.cutepikachu.datawisemaster.util.ExcelUtil;
 import cn.cutepikachu.datawisemaster.util.ResponseUtil;
 import cn.cutepikachu.datawisemaster.util.ThrowUtil;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.excel.support.ExcelTypeEnum;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +31,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -56,6 +61,15 @@ public class ChartController {
     @Resource
     private RedissonClient redissonClient;
 
+    private static final Map<String, ExcelTypeEnum> VALID_SUFFIX_MAP;
+
+    static {
+        VALID_SUFFIX_MAP = new HashMap<>();
+        VALID_SUFFIX_MAP.put("xls", ExcelTypeEnum.XLS);
+        VALID_SUFFIX_MAP.put("xlsx", ExcelTypeEnum.XLSX);
+        VALID_SUFFIX_MAP.put("csv", ExcelTypeEnum.CSV);
+    }
+
     /**
      * 生成图表请求
      *
@@ -76,10 +90,24 @@ public class ChartController {
             throw new RuntimeException(e);
         }
 
+        // 文件类型（后缀）校验
+        String originalFilename = dataFile.getOriginalFilename();
+        if (originalFilename == null) {
+            throw new BusinessException(ResponseCode.PARAMS_ERROR);
+        }
+        String suffix = FileUtil.getSuffix(originalFilename).toLowerCase();
+        ThrowUtil.throwIf(!VALID_SUFFIX_MAP.containsKey(suffix), ResponseCode.PARAMS_ERROR, "非法文件类型");
+
+        // 文件大小限制
+        final long MAX_SIZE = 1024 * 1024 * 5L;
+        long size = dataFile.getSize();
+        ThrowUtil.throwIf(size > MAX_SIZE, ResponseCode.PARAMS_ERROR, "文件大小超过限制");
+
         Chart chart = new Chart();
         BeanUtil.copyProperties(chartGenRequest, chart);
         chart.setUserId(loginUser.getId());
-        String data = ExcelUtil.excelToCSV(dataFile);
+        ExcelTypeEnum type = VALID_SUFFIX_MAP.get(suffix);
+        String data = ExcelUtil.excelToCsvString(dataFile, type);
         chart.setData(data.trim());
 
         String goal = chartGenRequest.getGoal();
