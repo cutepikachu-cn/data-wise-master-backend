@@ -6,6 +6,7 @@ import cn.cutepikachu.datawisemaster.common.DeleteRequest;
 import cn.cutepikachu.datawisemaster.common.ResponseCode;
 import cn.cutepikachu.datawisemaster.exception.BusinessException;
 import cn.cutepikachu.datawisemaster.manager.AiManager;
+import cn.cutepikachu.datawisemaster.manager.RateLimiterManager;
 import cn.cutepikachu.datawisemaster.model.dto.chart.ChartGenRequest;
 import cn.cutepikachu.datawisemaster.model.dto.chart.ChartQueryRequest;
 import cn.cutepikachu.datawisemaster.model.entity.Chart;
@@ -24,8 +25,7 @@ import com.alibaba.excel.support.ExcelTypeEnum;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
-import org.redisson.api.RLock;
-import org.redisson.api.RedissonClient;
+import org.redisson.api.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -58,8 +58,11 @@ public class ChartController {
     @Resource
     private AiManager aiManager;
 
+    // @Resource
+    // private RedissonClient redissonClient;
+
     @Resource
-    private RedissonClient redissonClient;
+    private RateLimiterManager rateLimiterManager;
 
     private static final Map<String, ExcelTypeEnum> VALID_SUFFIX_MAP;
 
@@ -80,15 +83,17 @@ public class ChartController {
     public BaseResponse<?> genChart(@RequestPart MultipartFile dataFile,
                                     @Valid ChartGenRequest chartGenRequest) {
         User loginUser = userService.getLoginUser();
-        RLock lock = redissonClient.getLock("chart:gen" + loginUser.getId());
-        // 30s 内最多生成一次
-        try {
-            if (!lock.tryLock(-1, 30, TimeUnit.SECONDS)) {
-                return ResponseUtil.error(ResponseCode.OPERATION_ERROR, "操作过于频繁");
-            }
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        // RRateLimiter rateLimiter = redissonClient.getRateLimiter("chart:gen" + loginUser.getId());
+        // RLock lock = redissonClient.getLock("chart:gen" + loginUser.getId());
+        // // 30s 内最多生成一次
+        // try {
+        //     if (!lock.tryLock(-1, 30, TimeUnit.SECONDS)) {
+        //         return ResponseUtil.error(ResponseCode.OPERATION_ERROR, "操作过于频繁");
+        //     }
+        // } catch (InterruptedException e) {
+        //     throw new RuntimeException(e);
+        // }
+        rateLimiterManager.doRateLimit("chart:gen" + loginUser.getId());
 
         // 文件类型（后缀）校验
         String originalFilename = dataFile.getOriginalFilename();
