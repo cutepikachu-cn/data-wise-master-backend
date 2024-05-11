@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  * @version 1.0
  */
 public class ExcelUtil {
-    public static String excelToCSV(MultipartFile file) {
+    public static String excelToCsvString(MultipartFile file, ExcelTypeEnum type) {
         // File dataFile;
         // try {
         //     dataFile = ResourceUtils.getFile("classpath:data.xlsx");
@@ -28,7 +28,7 @@ public class ExcelUtil {
         List<Map<Integer, String>> rows;
         try {
             rows = EasyExcel.read(file.getInputStream())
-                    .excelType(ExcelTypeEnum.XLSX)
+                    .excelType(type)
                     .sheet()
                     .headRowNumber(0)
                     .doReadSync();
@@ -54,7 +54,4 @@ public class ExcelUtil {
         return dataStr.toString();
     }
 
-    public static void main(String[] args) {
-        excelToCSV(null);
-    }
 }
