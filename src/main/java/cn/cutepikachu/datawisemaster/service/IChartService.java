@@ -6,6 +6,10 @@ import cn.cutepikachu.datawisemaster.model.vo.ChartVO;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -40,4 +44,15 @@ public interface IChartService extends IService<Chart> {
      * @return
      */
     Page<ChartVO> getChartVOPage(Page<Chart> chartPage);
+
+    /**
+     * 存储图表信息和数据
+     *
+     * @param chart
+     * @param data
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    boolean saveChart(Chart chart, String data);
+
 }

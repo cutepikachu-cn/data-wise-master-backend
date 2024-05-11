@@ -108,13 +108,12 @@ public class ChartController {
         chart.setUserId(loginUser.getId());
         ExcelTypeEnum type = VALID_SUFFIX_MAP.get(suffix);
         String data = ExcelUtil.excelToCsvString(dataFile, type);
-        chart.setData(data.trim());
 
         String goal = chartGenRequest.getGoal();
         String name = chartGenRequest.getName();
         String chartType = chartGenRequest.getChartType();
         // 拼接用户输入
-        // {"goal":"分析网站用户增长趋势","name":"用户增长趋势图","chartType":"line"}
+        // {"goal":"分析网站用户增长情况","name":"用户增长情况","chartType":"line"}
         String userInput = "分析需求: \n" + goal + '\n' +
                 "图表名称为" + name + '\n' +
                 "图表类型为" + chartType + '\n' +
@@ -128,9 +127,12 @@ public class ChartController {
 
         chart.setGenChart(genChart);
         chart.setGenResult(genResult);
-        boolean result = chartService.save(chart);
+        boolean result = chartService.saveChart(chart, data);
         ThrowUtil.throwIf(!result, ResponseCode.OPERATION_ERROR);
-        return ResponseUtil.success(chart.toVO(ChartVO.class));
+
+        ChartVO chartVO = chartService.getChartVO(chart);
+
+        return ResponseUtil.success(chartVO);
     }
 
     /**

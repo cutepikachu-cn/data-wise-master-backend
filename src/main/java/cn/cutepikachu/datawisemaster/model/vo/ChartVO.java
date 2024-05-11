@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -34,7 +36,7 @@ public class ChartVO extends BaseVO<Chart, ChartVO> implements Serializable {
     @ApiModelProperty("图表名称")
     private String name;
     @ApiModelProperty("原始数据")
-    private String data;
+    private List<Map<String, String>> data;
     @ApiModelProperty("图表类型")
     private String chartType;
     @ApiModelProperty("AI分析生成的图表数据")

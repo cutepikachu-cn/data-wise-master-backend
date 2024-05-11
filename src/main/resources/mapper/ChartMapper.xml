@@ -4,22 +4,41 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="cn.cutepikachu.datawisemaster.model.entity.Chart">
-        <id column="id" property="id" />
-        <result column="user_id" property="userId" />
-        <result column="goal" property="goal" />
-        <result column="name" property="name" />
-        <result column="data" property="data" />
-        <result column="chart_type" property="chartType" />
-        <result column="gen_chart" property="genChart" />
-        <result column="gen_result" property="genResult" />
-        <result column="create_time" property="createTime" />
-        <result column="update_time" property="updateTime" />
-        <result column="is_delete" property="isDelete" />
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="goal" property="goal"/>
+        <result column="name" property="name"/>
+        <result column="chart_type" property="chartType"/>
+        <result column="gen_chart" property="genChart"/>
+        <result column="gen_result" property="genResult"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="is_delete" property="isDelete"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, user_id, goal, name, `data`, chart_type, gen_chart, gen_result, create_time, update_time, is_delete
+        id, user_id, goal, name, chart_type, gen_chart, gen_result, create_time, update_time, is_delete
     </sql>
+
+    <update id="createChartDataTable" parameterType="list">
+        create table if not exists chart_data_#{chartId}
+        (
+        <foreach collection="fieldList" item="field" separator=",">
+            `${field}` varchar(255)
+        </foreach>
+        ) collate = utf8mb4_unicode_ci;
+    </update>
+
+    <insert id="insertChartData" parameterType="list">
+        insert into chart_data_#{chartId} values
+        <foreach collection="dataList" item="rowData" separator=",">
+            (<foreach collection="rowData" item="value" separator=",">#{value}</foreach>)
+        </foreach>
+    </insert>
+
+    <select id="selectChartData" resultType="map">
+        select * from chart_data_#{chartId}
+    </select>
 
 </mapper>

@@ -80,7 +80,6 @@ create table if not exists `chart`
     `user_id`     bigint unsigned                    not null comment '用户id',
     `goal`        text                               not null comment '分析目标',
     `name`        varchar(128)                       not null comment '图表名称',
-    `data`        text                               not null comment '原始数据',
     `chart_type`  varchar(128)                       not null comment '图表类型',
     `gen_chart`   text comment 'AI分析生成的图表数据',
     `gen_result`  text comment 'AI分析的结论',

@@ -49,10 +49,6 @@ public class Chart extends BaseEntity<Chart, ChartVO> implements Serializable {
     @TableField("`name`")
     private String name;
 
-    @ApiModelProperty("原始数据")
-    @TableField("`data`")
-    private String data;
-
     @ApiModelProperty("图表类型")
     @TableField("chart_type")
     private String chartType;

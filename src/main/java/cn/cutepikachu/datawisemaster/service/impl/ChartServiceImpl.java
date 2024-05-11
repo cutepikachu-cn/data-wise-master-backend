@@ -1,12 +1,15 @@
 package cn.cutepikachu.datawisemaster.service.impl;
 
+import cn.cutepikachu.datawisemaster.common.ResponseCode;
 import cn.cutepikachu.datawisemaster.mapper.ChartMapper;
 import cn.cutepikachu.datawisemaster.model.dto.chart.ChartQueryRequest;
 import cn.cutepikachu.datawisemaster.model.entity.Chart;
 import cn.cutepikachu.datawisemaster.model.enums.SortOrder;
 import cn.cutepikachu.datawisemaster.model.vo.ChartVO;
 import cn.cutepikachu.datawisemaster.service.IChartService;
+import cn.cutepikachu.datawisemaster.util.DataConvertUtil;
 import cn.cutepikachu.datawisemaster.util.SqlUtil;
+import cn.cutepikachu.datawisemaster.util.ThrowUtil;
 import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -15,6 +18,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -62,7 +66,10 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart> implements
 
     @Override
     public ChartVO getChartVO(Chart chart) {
-        return chart.toVO(ChartVO.class);
+        ChartVO chartVO = chart.toVO(ChartVO.class);
+        List<Map<String, String>> data = baseMapper.selectChartData(chart.getId());
+        chartVO.setData(data);
+        return chartVO;
     }
 
     @Override
@@ -72,8 +79,27 @@ public class ChartServiceImpl extends ServiceImpl<ChartMapper, Chart> implements
         if (chartList.isEmpty()) {
             return chartVOPage;
         }
-        List<ChartVO> chartVOList = chartList.stream().map(chart -> chart.toVO(ChartVO.class)).collect(Collectors.toList());
+        List<ChartVO> chartVOList = chartList.stream().map(this::getChartVO).collect(Collectors.toList());
         chartVOPage.setRecords(chartVOList);
         return chartVOPage;
     }
+
+    @Override
+    public boolean saveChart(Chart chart, String data) {
+        // 存储图表信息
+        boolean saveSuccess = save(chart);
+        ThrowUtil.throwIf(!saveSuccess, ResponseCode.OPERATION_ERROR);
+        Long chartId = chart.getId();
+
+        // 创建数据表
+        List<Map<String, String>> dataList = DataConvertUtil.convert(data);
+        baseMapper.createChartDataTable(chartId, dataList.get(0).keySet());
+
+        // 存储数据
+        boolean insertSuccess = baseMapper.insertChartData(chartId, dataList);
+        ThrowUtil.throwIf(!insertSuccess, ResponseCode.OPERATION_ERROR);
+
+        return true;
+    }
+
 }

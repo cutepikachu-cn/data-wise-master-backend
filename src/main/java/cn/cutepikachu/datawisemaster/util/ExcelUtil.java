@@ -51,7 +51,7 @@ public class ExcelUtil {
             dataStr.append(rowStr).append('\n');
         }
         // System.out.println(dataStr);
-        return dataStr.toString();
+        return dataStr.toString().trim();
     }
 
 }
