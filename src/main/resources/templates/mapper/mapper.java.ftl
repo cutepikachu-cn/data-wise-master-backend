@@ -11,8 +11,9 @@ import ${mapperAnnotationClass.name};
  * ${table.comment!} Mapper 接口
  * </p>
  *
- * @author ${author}
- * @since ${date}
+ * @author <a href="https://github.com/cutepikachu-cn">笨蛋皮卡丘</a>
+ * @version ${version}
+ * @date ${date}
  */
 <#if mapperAnnotationClass??>
 @${mapperAnnotationClass.simpleName}

@@ -27,8 +27,9 @@ import ${projectPackage}.model.vo.BaseVO;
  * ${table.comment!} VO
  * </p>
  *
- * @author ${author}
- * @since ${date}
+ * @author <a href="https://github.com/cutepikachu-cn">笨蛋皮卡丘</a>
+ * @version ${version}
+ * @date ${date}
  */
 <#if entityLombokModel>
 @Data
@@ -39,9 +40,9 @@ import ${projectPackage}.model.vo.BaseVO;
     </#if>
 </#if>
 <#if springdoc>
-@Schema(name = "${vo}", description = "${table.comment!}")
+@Schema(description = "${table.comment!}")
 <#elseif swagger>
-@ApiModel(value = "${vo}", description = "${table.comment!}")
+@ApiModel(description = "${table.comment!}")
 </#if>
 <#if superEntityClass??>
 public class ${vo} extends BaseVO<${entity}, ${vo}><#if entitySerialVersionUID> implements Serializable</#if> {
@@ -55,18 +56,20 @@ public class ${vo} {
 </#if>
 <#-- ----------  BEGIN 字段循环遍历  ---------->
 <#list table.fields as field>
-    <#if field.comment!?length gt 0>
-        <#if springdoc>
+    <#if !field.logicDeleteField>
+        <#if field.comment!?length gt 0>
+            <#if springdoc>
     @Schema(description = "${field.comment}")
-        <#elseif swagger>
+            <#elseif swagger>
     @ApiModelProperty("${field.comment}")
-        <#else>
+            <#else>
     /**
      * ${field.comment}
      */
+            </#if>
         </#if>
-    </#if>
     private ${field.propertyType} ${field.propertyName};
+    </#if>
 </#list>
 <#------------  END 字段循环遍历  ---------->
 <#if !entityLombokModel>

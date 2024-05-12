@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+ <!-- @author <a href="https://github.com/cutepikachu-cn">笨蛋皮卡丘</a> -->
+ <!-- @version ${version} -->
+ <!-- @date ${date} -->
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="${package.Mapper}.${table.mapperName}">
 
@@ -12,15 +15,15 @@
     <resultMap id="BaseResultMap" type="${package.Entity}.${entity}">
 <#list table.fields as field>
 <#if field.keyFlag><#--生成主键排在第一位-->
-        <id column="${field.name}" property="${field.propertyName}" />
+        <id column="${field.name}" property="${field.propertyName}" jdbcType="${field.metaInfo.jdbcType}" />
 </#if>
 </#list>
 <#list table.commonFields as field><#--生成公共字段 -->
-        <result column="${field.name}" property="${field.propertyName}" />
+        <result column="${field.name}" property="${field.propertyName}" jdbcType="${field.metaInfo.jdbcType}" />
 </#list>
 <#list table.fields as field>
 <#if !field.keyFlag><#--生成普通字段 -->
-        <result column="${field.name}" property="${field.propertyName}" />
+        <result column="${field.name}" property="${field.propertyName}" jdbcType="${field.metaInfo.jdbcType}" />
 </#if>
 </#list>
     </resultMap>

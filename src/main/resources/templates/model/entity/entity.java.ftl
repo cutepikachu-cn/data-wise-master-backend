@@ -29,8 +29,9 @@ import ${package.Parent}.model.vo.${vo};
  * ${table.comment!}
  * </p>
  *
- * @author ${author}
- * @since ${date}
+ * @author <a href="https://github.com/cutepikachu-cn">笨蛋皮卡丘</a>
+ * @version ${version}
+ * @date ${date}
  */
 <#if entityLombokModel>
 @Data
@@ -47,9 +48,9 @@ import ${package.Parent}.model.vo.${vo};
 @TableName(value = "`${schemaName}${table.name}`", autoResultMap = true)
 </#if>
 <#if springdoc>
-@Schema(name = "${entity}", description = "${table.comment!}")
+@Schema(description = "${table.comment!}")
 <#elseif swagger>
-@ApiModel(value = "${entity}", description = "${table.comment!}")
+@ApiModel(description = "${table.comment!}")
 </#if>
 <#if superEntityClass??>
 public class ${entity} extends ${superEntityClass}<${entity}, ${vo}><#if entitySerialVersionUID> implements Serializable</#if> {

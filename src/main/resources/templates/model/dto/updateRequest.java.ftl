@@ -11,15 +11,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 </#if>
-import ${projectPackage}.common.PageRequest;
 <#if entityLombokModel>
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 </#if>
 
 /**
  * <p>
- * ${table.comment!} 查询请求 DTO
+ * ${table.comment!} 更新请求 DTO
  * </p>
  *
  * @author <a href="https://github.com/cutepikachu-cn">笨蛋皮卡丘</a>
@@ -28,20 +26,19 @@ import lombok.EqualsAndHashCode;
  */
 <#if entityLombokModel>
 @Data
-@EqualsAndHashCode(callSuper = true)
 </#if>
 <#if springdoc>
-@Schema(description = "${table.comment!} 查询请求")
+@Schema(description = "${table.comment!} 更新请求")
 <#elseif swagger>
-@ApiModel(description = "${table.comment!} 查询请求")
+@ApiModel(description = "${table.comment!} 更新请求")
 </#if>
-public class ${entity}QueryRequest extends PageRequest<#if entitySerialVersionUID> implements Serializable</#if> {
+public class ${entity}UpdateRequest<#if entitySerialVersionUID> implements Serializable</#if> {
 <#if entitySerialVersionUID>
     private static final long serialVersionUID = 1L;
 </#if>
 <#-- ----------  BEGIN 字段循环遍历  ---------->
 <#list table.fields as field>
-    <#if !field.logicDeleteField>
+    <#if !field.logicDeleteField && !field.fill?? && !field.keyFlag>
         <#if field.comment!?length gt 0>
             <#if springdoc>
     @Schema(description = "${field.comment}")
