@@ -77,14 +77,15 @@ drop table if exists `chart`;
 create table if not exists `chart`
 (
     `id`          bigint unsigned primary key comment 'id',
-    `user_id`     bigint unsigned                    not null comment '用户id',
-    `goal`        text                               not null comment '分析目标',
-    `name`        varchar(128)                       not null comment '图表名称',
-    `chart_type`  varchar(128)                       not null comment '图表类型',
+    `user_id`     bigint unsigned                                                        not null comment '用户id',
+    `goal`        text                                                                   not null comment '分析目标',
+    `name`        varchar(128)                                                           not null comment '图表名称',
+    `chart_type`  varchar(128)                                                           not null comment '图表类型',
+    `gen_status`      enum ('WAIT', 'RUNNING', 'SUCCEED', 'ERROR') default 'WAIT'            not null comment '分析状态',
     `gen_chart`   text comment 'AI分析生成的图表数据',
     `gen_result`  text comment 'AI分析的结论',
-    `create_time` datetime default current_timestamp not null comment '创建时间',
-    `update_time` datetime default current_timestamp not null on update current_timestamp comment '更新时间',
-    `is_delete`   tinyint  default 0                 not null comment '是否删除',
+    `create_time` datetime                                     default current_timestamp not null comment '创建时间',
+    `update_time` datetime                                     default current_timestamp not null on update current_timestamp comment '更新时间',
+    `is_delete`   tinyint                                      default 0                 not null comment '是否删除',
     index idx_user_id (`user_id`)
 ) comment '图表信息' collate = utf8mb4_unicode_ci;

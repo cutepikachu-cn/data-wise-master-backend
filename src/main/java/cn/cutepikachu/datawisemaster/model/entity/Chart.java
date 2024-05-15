@@ -1,5 +1,6 @@
 package cn.cutepikachu.datawisemaster.model.entity;
 
+import cn.cutepikachu.datawisemaster.model.enums.GenStatus;
 import cn.cutepikachu.datawisemaster.model.vo.ChartVO;
 import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModel;
@@ -52,6 +53,10 @@ public class Chart extends BaseEntity<Chart, ChartVO> implements Serializable {
     @ApiModelProperty("图表类型")
     @TableField("chart_type")
     private String chartType;
+
+    @ApiModelProperty("分析状态")
+    @TableField("gen_status")
+    private GenStatus genStatus;
 
     @ApiModelProperty("AI分析生成的图表数据")
     @TableField("gen_chart")

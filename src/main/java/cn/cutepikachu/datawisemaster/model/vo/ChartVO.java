@@ -1,6 +1,7 @@
 package cn.cutepikachu.datawisemaster.model.vo;
 
 import cn.cutepikachu.datawisemaster.model.entity.Chart;
+import cn.cutepikachu.datawisemaster.model.enums.GenStatus;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -39,6 +40,8 @@ public class ChartVO extends BaseVO<Chart, ChartVO> implements Serializable {
     private List<Map<String, String>> data;
     @ApiModelProperty("图表类型")
     private String chartType;
+    @ApiModelProperty("分析状态")
+    private GenStatus genStatus;
     @ApiModelProperty("AI分析生成的图表数据")
     private String genChart;
     @ApiModelProperty("AI分析的结论")

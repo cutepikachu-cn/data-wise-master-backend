@@ -9,6 +9,7 @@
         <result column="goal" property="goal"/>
         <result column="name" property="name"/>
         <result column="chart_type" property="chartType"/>
+        <result column="gen_status" property="genStatus"/>
         <result column="gen_chart" property="genChart"/>
         <result column="gen_result" property="genResult"/>
         <result column="create_time" property="createTime"/>
@@ -18,7 +19,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, user_id, goal, name, chart_type, gen_chart, gen_result, create_time, update_time, is_delete
+        id, user_id, goal, name, chart_type, gen_status, gen_chart, gen_result, create_time, update_time, is_delete
     </sql>
 
     <update id="createChartDataTable" parameterType="list">
