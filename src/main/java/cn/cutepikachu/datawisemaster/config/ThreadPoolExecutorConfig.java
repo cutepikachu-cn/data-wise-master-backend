@@ -20,6 +20,7 @@ public class ThreadPoolExecutorConfig {
     public ThreadPoolExecutor threadPoolExecutor() {
         ThreadFactory threadFactory = new ThreadFactory() {
             private int count = 1;
+
             @Override
             public Thread newThread(Runnable r) {
                 Thread thread = new Thread(r);

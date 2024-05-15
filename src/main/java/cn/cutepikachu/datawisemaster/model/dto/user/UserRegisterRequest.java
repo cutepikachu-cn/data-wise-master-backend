@@ -43,6 +43,7 @@ public class UserRegisterRequest implements Serializable {
     @ApiModelProperty("用户角色")
     @NotNull
     private UserRole userRole;
+
     @AssertTrue
     @ApiIgnore
     public boolean isValidUserRole() {

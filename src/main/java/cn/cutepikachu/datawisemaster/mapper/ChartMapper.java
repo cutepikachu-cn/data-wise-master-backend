@@ -4,7 +4,6 @@ import cn.cutepikachu.datawisemaster.model.entity.Chart;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Mapper;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -21,7 +20,9 @@ import java.util.Set;
 @Mapper
 public interface ChartMapper extends BaseMapper<Chart> {
     void createChartDataTable(Long chartId, Set<String> fieldList);
+
     boolean insertChartData(Long chartId, List<Map<String, String>> dataList);
+
     @MapKey("")
     List<Map<String, String>> selectChartData(Long chartId);
 }
