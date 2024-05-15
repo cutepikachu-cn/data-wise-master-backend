@@ -20,6 +20,7 @@ public class MyBatisPlusMetaObjectHandler implements MetaObjectHandler {
         // 插入填充
         this.strictInsertFill(metaObject, "createTime", LocalDateTime::now, LocalDateTime.class);
         this.strictInsertFill(metaObject, "updateTime", LocalDateTime::now, LocalDateTime.class);
+        this.strictInsertFill(metaObject, "genStatus", LocalDateTime::now, LocalDateTime.class);
     }
 
     @Override

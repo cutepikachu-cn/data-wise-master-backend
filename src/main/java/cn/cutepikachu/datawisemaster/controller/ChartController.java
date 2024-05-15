@@ -11,6 +11,7 @@ import cn.cutepikachu.datawisemaster.model.dto.chart.ChartGenRequest;
 import cn.cutepikachu.datawisemaster.model.dto.chart.ChartQueryRequest;
 import cn.cutepikachu.datawisemaster.model.entity.Chart;
 import cn.cutepikachu.datawisemaster.model.entity.User;
+import cn.cutepikachu.datawisemaster.model.enums.GenStatus;
 import cn.cutepikachu.datawisemaster.model.enums.UserRole;
 import cn.cutepikachu.datawisemaster.model.vo.ChartVO;
 import cn.cutepikachu.datawisemaster.service.IChartService;
@@ -25,7 +26,6 @@ import com.alibaba.excel.support.ExcelTypeEnum;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
-import org.redisson.api.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,7 +34,8 @@ import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * <p>
@@ -63,6 +64,9 @@ public class ChartController {
 
     @Resource
     private RateLimiterManager rateLimiterManager;
+
+    @Resource
+    private ThreadPoolExecutor threadPoolExecutor;
 
     private static final Map<String, ExcelTypeEnum> VALID_SUFFIX_MAP;
 
@@ -93,6 +97,7 @@ public class ChartController {
         // } catch (InterruptedException e) {
         //     throw new RuntimeException(e);
         // }
+        // 限流
         rateLimiterManager.doRateLimit("chart:gen" + loginUser.getId());
 
         // 文件类型（后缀）校验
@@ -102,6 +107,7 @@ public class ChartController {
         }
         String suffix = FileUtil.getSuffix(originalFilename).toLowerCase();
         ThrowUtil.throwIf(!VALID_SUFFIX_MAP.containsKey(suffix), ResponseCode.PARAMS_ERROR, "非法文件类型");
+        ExcelTypeEnum type = VALID_SUFFIX_MAP.get(suffix);
 
         // 文件大小限制
         final long MAX_SIZE = 1024 * 1024 * 5L;
@@ -111,32 +117,51 @@ public class ChartController {
         Chart chart = new Chart();
         BeanUtil.copyProperties(chartGenRequest, chart);
         chart.setUserId(loginUser.getId());
-        ExcelTypeEnum type = VALID_SUFFIX_MAP.get(suffix);
+
+        // 数据转换
         String data = ExcelUtil.excelToCsvString(dataFile, type);
 
+        // 拼接用户输入
         String goal = chartGenRequest.getGoal();
         String name = chartGenRequest.getName();
         String chartType = chartGenRequest.getChartType();
-        // 拼接用户输入
-        // {"goal":"分析网站用户增长情况","name":"用户增长情况","chartType":"line"}
         String userInput = "分析需求: \n" + goal + '\n' +
                 "图表名称为" + name + '\n' +
                 "图表类型为" + chartType + '\n' +
                 "原始数据: \n" + data;
-        // AI 调用
-        String aiGenResult = aiManager.doChat(userInput);
-        List<String> splitResult = StrUtil.split(aiGenResult, "*****");
-        ThrowUtil.throwIf(splitResult.size() < 2, ResponseCode.OPERATION_ERROR, "生成错误");
-        String genChart = splitResult.get(1).trim();
-        String genResult = splitResult.get(2).trim();
 
-        chart.setGenChart(genChart);
-        chart.setGenResult(genResult);
+        // 存储数据（任务）——状态默认为等待中
         boolean result = chartService.saveChart(chart, data);
         ThrowUtil.throwIf(!result, ResponseCode.OPERATION_ERROR);
 
-        ChartVO chartVO = chartService.getChartVO(chart);
+        // 异步调用 AI
+        CompletableFuture.runAsync(() -> {
 
+            // 设置分析中状态
+            Chart analysingChart = new Chart();
+            analysingChart.setId(chart.getId())
+                    .setGenStatus(GenStatus.RUNNING);
+            if (!chartService.updateById(analysingChart)) {
+                throw new BusinessException(ResponseCode.OPERATION_ERROR);
+            }
+
+            // AI 调用
+            String aiGenResult = aiManager.doChat(userInput);
+            List<String> splitResult = StrUtil.split(aiGenResult, "*****");
+            ThrowUtil.throwIf(splitResult.size() < 2, ResponseCode.OPERATION_ERROR, "生成错误");
+            String genChart = splitResult.get(1).trim();
+            String genResult = splitResult.get(2).trim();
+            analysingChart.setGenChart(genChart)
+                    .setGenResult(genResult);
+
+            // 设置分析完成状态
+            analysingChart.setGenStatus(GenStatus.SUCCEED);
+            if (!chartService.updateById(analysingChart)) {
+                throw new BusinessException(ResponseCode.OPERATION_ERROR);
+            }
+        }, threadPoolExecutor);
+
+        ChartVO chartVO = chartService.getChartVO(chart);
         return ResponseUtil.success(chartVO);
     }
 
