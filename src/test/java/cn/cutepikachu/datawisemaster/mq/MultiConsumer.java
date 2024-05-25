@@ -40,7 +40,7 @@ public class MultiConsumer {
 
                     channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
                 } catch (Exception e) {
-                    channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+                    channel.basicNack(delivery.getEnvelope().getDeliveryTag(), false, false);
                 } finally {
                     System.out.println(" [" + finalI + "] Done");
                     channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
