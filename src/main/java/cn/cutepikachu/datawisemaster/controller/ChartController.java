@@ -14,6 +14,8 @@ import cn.cutepikachu.datawisemaster.model.entity.User;
 import cn.cutepikachu.datawisemaster.model.enums.GenStatus;
 import cn.cutepikachu.datawisemaster.model.enums.UserRole;
 import cn.cutepikachu.datawisemaster.model.vo.ChartVO;
+import cn.cutepikachu.datawisemaster.mq.MQConstant;
+import cn.cutepikachu.datawisemaster.mq.MessageProducer;
 import cn.cutepikachu.datawisemaster.service.IChartService;
 import cn.cutepikachu.datawisemaster.service.IUserService;
 import cn.cutepikachu.datawisemaster.util.ExcelUtil;
@@ -68,6 +70,9 @@ public class ChartController {
     @Resource
     private ThreadPoolExecutor threadPoolExecutor;
 
+    @Resource
+    private MessageProducer messageProducer;
+
     private static final Map<String, ExcelTypeEnum> VALID_SUFFIX_MAP;
 
     static {
@@ -121,45 +126,48 @@ public class ChartController {
         // 数据转换
         String data = ExcelUtil.excelToCsvString(dataFile, type);
 
-        // 拼接用户输入
-        String goal = chartGenRequest.getGoal();
-        String name = chartGenRequest.getName();
-        String chartType = chartGenRequest.getChartType();
-        String userInput = "分析需求: \n" + goal + '\n' +
-                "图表名称为" + name + '\n' +
-                "图表类型为" + chartType + '\n' +
-                "原始数据: \n" + data;
-
         // 存储数据（任务）——状态默认为等待中
         boolean result = chartService.saveChart(chart, data);
         ThrowUtil.throwIf(!result, ResponseCode.OPERATION_ERROR);
+        //
+        //
+        // // 拼接用户输入
+        // String goal = chartGenRequest.getGoal();
+        // String name = chartGenRequest.getName();
+        // String chartType = chartGenRequest.getChartType();
+        // String userInput = "分析需求: \n" + goal + '\n' +
+        //         "图表名称为" + name + '\n' +
+        //         "图表类型为" + chartType + '\n' +
+        //         "原始数据: \n" + data;
+        //
+        // // 异步调用 AI
+        // CompletableFuture.runAsync(() -> {
+        //
+        //     // 设置分析中状态
+        //     Chart analysingChart = new Chart();
+        //     analysingChart.setId(chart.getId())
+        //             .setGenStatus(GenStatus.RUNNING);
+        //     if (!chartService.updateById(analysingChart)) {
+        //         throw new BusinessException(ResponseCode.OPERATION_ERROR);
+        //     }
+        //
+        //     // AI 调用
+        //     String aiGenResult = aiManager.doChat(userInput);
+        //     List<String> splitResult = StrUtil.split(aiGenResult, "*****");
+        //     ThrowUtil.throwIf(splitResult.size() < 2, ResponseCode.OPERATION_ERROR, "生成错误");
+        //     String genChart = splitResult.get(1).trim();
+        //     String genResult = splitResult.get(2).trim();
+        //     analysingChart.setGenChart(genChart)
+        //             .setGenResult(genResult);
+        //
+        //     // 设置分析完成状态
+        //     analysingChart.setGenStatus(GenStatus.SUCCEED);
+        //     if (!chartService.updateById(analysingChart)) {
+        //         throw new BusinessException(ResponseCode.OPERATION_ERROR);
+        //     }
+        // }, threadPoolExecutor);
 
-        // 异步调用 AI
-        CompletableFuture.runAsync(() -> {
-
-            // 设置分析中状态
-            Chart analysingChart = new Chart();
-            analysingChart.setId(chart.getId())
-                    .setGenStatus(GenStatus.RUNNING);
-            if (!chartService.updateById(analysingChart)) {
-                throw new BusinessException(ResponseCode.OPERATION_ERROR);
-            }
-
-            // AI 调用
-            String aiGenResult = aiManager.doChat(userInput);
-            List<String> splitResult = StrUtil.split(aiGenResult, "*****");
-            ThrowUtil.throwIf(splitResult.size() < 2, ResponseCode.OPERATION_ERROR, "生成错误");
-            String genChart = splitResult.get(1).trim();
-            String genResult = splitResult.get(2).trim();
-            analysingChart.setGenChart(genChart)
-                    .setGenResult(genResult);
-
-            // 设置分析完成状态
-            analysingChart.setGenStatus(GenStatus.SUCCEED);
-            if (!chartService.updateById(analysingChart)) {
-                throw new BusinessException(ResponseCode.OPERATION_ERROR);
-            }
-        }, threadPoolExecutor);
+        messageProducer.sendMessage(chart.getId().toString(), MQConstant.ANALYSIS_EXCHANGE_NAME, MQConstant.ANALYSIS_ROUTING_KEY);
 
         ChartVO chartVO = chartService.getChartVO(chart);
         return ResponseUtil.success(chartVO);
